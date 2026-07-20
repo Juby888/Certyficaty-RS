@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zarejestruj się | Protokoły Pomiarowe Grid</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .auth-wrap{
+    max-width:420px;
+    margin:70px auto;
+    padding:0 24px;
+    position:relative;
+    z-index:1;
+  }
+  .auth-card{
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:32px 28px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.04);
+  }
+  .auth-card h1{font-size:22px; font-weight:800; margin-bottom:6px;}
+  .auth-card p.sub{font-size:13.5px; color:var(--text-muted); margin-bottom:24px;}
+  .auth-field{display:flex; flex-direction:column; gap:6px; margin-bottom:16px;}
+  .auth-field label{font-size:12.5px; font-weight:600; color:var(--text-muted);}
+  .auth-field input{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:10px 12px;
+    font-size:14px;
+    font-family:inherit;
+  }
+  .auth-field input:focus{
+    outline:none;
+    border-color:var(--red);
+    box-shadow:0 0 0 3px rgba(200,16,46,0.12);
+  }
+  .auth-submit{width:100%; margin-top:6px;}
+  .auth-error{
+    background:rgba(200,16,46,0.06);
+    border:1px solid rgba(200,16,46,0.25);
+    color:var(--red-700);
+    border-radius:8px;
+    padding:10px 12px;
+    font-size:13px;
+    margin-bottom:16px;
+    display:none;
+  }
+  .auth-success{
+    background:rgba(46,160,67,0.08);
+    border:1px solid rgba(46,160,67,0.3);
+    color:#1a7a3c;
+    border-radius:8px;
+    padding:12px 14px;
+    font-size:13.5px;
+    margin-bottom:16px;
+    display:none;
+  }
+  .auth-footer-link{
+    text-align:center;
+    margin-top:20px;
+    font-size:13.5px;
+    color:var(--text-muted);
+  }
+  .auth-footer-link a{color:var(--red); font-weight:600; text-decoration:none;}
+  .auth-footer-link a:hover{text-decoration:underline;}
+</style>
+</head>
+<body data-page="auth">
+
+<div class="circuit-bg"></div>
+
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo">
+      <div class="bolt">
+        <svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+      </div>
+      <div>Protokoły Pomiarowe <span class="rs">Grid</span></div>
+    </a>
+    <div class="auth-buttons">
+      <a href="login.html" class="btn btn-outline">Zaloguj się</a>
+      <a href="register.html" class="btn btn-solid">Zarejestruj się</a>
+    </div>
+  </div>
+</header>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h1>Zarejestruj się</h1>
+    <p class="sub">Załóż darmowe konto — dostęp demo do wszystkich protokołów, pełny dostęp po wykupieniu.</p>
+
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-success" id="authSuccess"></div>
+
+    <form id="registerForm">
+      <div class="auth-field">
+        <label>Adres e-mail</label>
+        <input type="email" id="regEmail" required autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Hasło (min. 6 znaków)</label>
+        <input type="password" id="regPassword" required minlength="6" autocomplete="new-password">
+      </div>
+      <div class="auth-field">
+        <label>Powtórz hasło</label>
+        <input type="password" id="regPasswordConfirm" required minlength="6" autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn btn-solid btn-lg auth-submit" id="registerSubmit">Zarejestruj się</button>
+    </form>
+
+    <p class="auth-footer-link">Masz już konto? <a href="login.html">Zaloguj się</a></p>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 Protokoły Pomiarowe Grid. Wszystkie prawa zastrzeżone.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth-guard.js"></script>
+<script>
+(function(){
+  var form = document.getElementById('registerForm');
+  var errorBox = document.getElementById('authError');
+  var successBox = document.getElementById('authSuccess');
+  var submitBtn = document.getElementById('registerSubmit');
+
+  function showError(msg){
+    successBox.style.display = 'none';
+    errorBox.textContent = msg;
+    errorBox.style.display = 'block';
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    errorBox.style.display = 'none';
+    successBox.style.display = 'none';
+
+    var client = window.RS_AUTH ? window.RS_AUTH.getClient() : null;
+    if (!client){
+      showError('Rejestracja nie jest jeszcze skonfigurowana (brak danych Supabase w supabase-config.js).');
+      return;
+    }
+    var email = document.getElementById('regEmail').value.trim();
+    var password = document.getElementById('regPassword').value;
+    var passwordConfirm = document.getElementById('regPasswordConfirm').value;
+
+    if (password !== passwordConfirm){
+      showError('Podane hasła różnią się od siebie.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Rejestrowanie…';
+
+    client.auth.signUp({ email: email, password: password }).then(function(res){
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Zarejestruj się';
+      if (res.error){
+        showError(res.error.message);
+        return;
+      }
+      if (res.data && res.data.session){
+        var params = new URLSearchParams(window.location.search);
+        window.location.href = params.get('redirect') || 'index.html';
+        return;
+      }
+      form.style.display = 'none';
+      successBox.textContent = 'Konto utworzone. Sprawdź swoją skrzynkę e-mail i potwierdź adres, aby się zalogować.';
+      successBox.style.display = 'block';
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

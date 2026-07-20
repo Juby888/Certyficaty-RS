@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protokół Kontrolno-Pomiarowy odbioru nowej instalacji elektrycznej | Protokoły Pomiarowe Grid</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .action-bar{
+    position:sticky;
+    top:65px;
+    z-index:40;
+    background:rgba(255,255,255,0.95);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .action-bar-wrap{
+    max-width:980px;
+    margin:0 auto;
+    padding:14px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .action-bar h1{
+    font-size:16px;
+    font-weight:700;
+  }
+  .action-bar .subtitle{
+    font-size:12px;
+    color:var(--text-muted);
+    margin-top:2px;
+  }
+  .action-bar .back{
+    font-size:13px;
+    color:var(--text-muted);
+    text-decoration:none;
+    display:block;
+    margin-bottom:2px;
+  }
+  .action-bar .back:hover{color:var(--red);}
+  .action-buttons{display:flex; gap:10px; flex-wrap:wrap;}
+  .btn-sm{padding:8px 14px; font-size:13px; border-radius:7px;}
+
+  .save-status{
+    max-width:980px;
+    margin:14px auto 0;
+    padding:0 24px;
+  }
+  .save-status .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:var(--text-muted);
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    padding:6px 14px;
+    border-radius:999px;
+  }
+  .save-status .dot{width:7px;height:7px;border-radius:50%;background:#2ea043;}
+
+  main{
+    position:relative;
+    z-index:1;
+    max-width:980px;
+    margin:0 auto;
+    padding:24px 24px 100px;
+  }
+
+  .cert-section{
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    margin-bottom:24px;
+    background:var(--bg);
+  }
+  .cert-section-header{
+    background:linear-gradient(135deg, var(--red), var(--red-600));
+    color:#fff;
+    padding:12px 20px;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:0.3px;
+  }
+  .cert-section-header .num{
+    display:inline-block;
+    background:rgba(255,255,255,0.2);
+    border-radius:5px;
+    padding:1px 8px;
+    margin-right:8px;
+    font-size:12px;
+  }
+  .cert-section-sub{
+    padding:14px 20px 0;
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    color:var(--red);
+  }
+  .cert-section-body{
+    padding:16px 20px 22px;
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:16px;
+  }
+  .cert-section-body.cols-2{grid-template-columns:repeat(2, 1fr);}
+  .cert-section-body.cols-1{grid-template-columns:1fr;}
+  @media(max-width:700px){
+    .cert-section-body, .cert-section-body.cols-2{grid-template-columns:1fr;}
+  }
+
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field.span-2{grid-column:span 2;}
+  .field.span-3{grid-column:span 3;}
+  @media(max-width:700px){ .field.span-2, .field.span-3{grid-column:span 1;} }
+
+  .field label{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text-muted);
+  }
+  .field input[type=text],
+  .field input[type=date],
+  .field input[type=number],
+  .field select,
+  .field textarea{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:9px 11px;
+    font-size:14px;
+    font-family:inherit;
+    color:var(--text-main);
+    background:#fff;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .field textarea{resize:vertical; min-height:64px;}
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus{
+    outline:none;
+    border-color:var(--red);
+    box-shadow:0 0 0 3px rgba(200,16,46,0.12);
+  }
+
+  .pill-group{display:flex; flex-wrap:wrap; gap:8px;}
+  .pill-group input{position:absolute; opacity:0; pointer-events:none;}
+  .pill-group label{
+    display:inline-flex;
+    align-items:center;
+    padding:8px 14px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-main);
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .pill-group input:checked + label{
+    background:var(--red);
+    border-color:var(--red);
+    color:#fff;
+  }
+  .pill-group.assessment input:checked + label.satisfactory{
+    background:#1a7a3c; border-color:#1a7a3c;
+  }
+  .pill-group.assessment input:checked + label.unsatisfactory{
+    background:var(--red); border-color:var(--red);
+  }
+
+  .check-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    padding:11px 20px;
+    border-top:1px solid var(--line);
+  }
+  .check-row:first-child{border-top:none;}
+  .check-row span.n{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;height:22px;
+    border-radius:6px;
+    background:var(--bg-soft);
+    font-size:12px;
+    font-weight:700;
+    color:var(--red);
+    flex-shrink:0;
+    margin-right:10px;
+  }
+  .check-row .label-text{font-size:13.5px; flex:1;}
+  .check-row select{
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:6px 10px;
+    font-size:13px;
+    background:#fff;
+    min-width:110px;
+  }
+
+  .checkbox-line{display:flex; align-items:center; gap:8px; font-size:13.5px;}
+  .checkbox-line input{width:16px; height:16px; accent-color:var(--red);}
+
+  .checkbox-grid{display:flex; flex-wrap:wrap; gap:14px 24px;}
+
+  .hint{
+    font-size:12px;
+    color:var(--text-muted);
+    margin-top:2px;
+  }
+
+  .link-out{
+    padding:18px 20px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .link-out p{
+    font-size:13.5px;
+    color:var(--text-muted);
+    max-width:560px;
+  }
+
+  .logo-upload{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .logo-preview{
+    width:170px; height:80px;
+    border:2px dashed var(--line);
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+    background:var(--bg-soft);
+    cursor:pointer;
+    padding:8px;
+    text-align:center;
+    transition:border-color .15s ease;
+  }
+  .logo-preview:hover{border-color:var(--red);}
+  .logo-preview .logo-placeholder{font-size:11px; color:var(--text-muted);}
+  .logo-preview img{max-width:100%; max-height:100%; object-fit:contain;}
+  .logo-actions{display:flex; gap:8px;}
+
+  .logo-mode-switch{display:flex; gap:16px; margin-bottom:10px; font-size:13px; color:var(--text-main);}
+  .logo-mode-switch label{display:inline-flex; align-items:center; gap:6px; cursor:pointer;}
+  .logo-mode-switch input{accent-color:var(--red);}
+  .logo-mode-panel input#companyNameInput{
+    max-width:360px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:9px 11px;
+    font-size:14px;
+    font-family:inherit;
+  }
+
+  .photo-paste-zone{
+    min-height:64px;
+    border:2px dashed var(--line);
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    padding:14px;
+    cursor:pointer;
+    background:var(--bg-soft);
+    font-size:12.5px;
+    color:var(--text-muted);
+    transition:border-color .15s ease;
+    margin-bottom:14px;
+  }
+  .photo-paste-zone:hover, .photo-paste-zone:focus{border-color:var(--red); outline:none;}
+  .photo-grid{display:flex; flex-wrap:wrap; gap:14px;}
+  .photo-item{
+    width:170px;
+    display:flex; flex-direction:column; gap:6px;
+    position:relative;
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:8px;
+  }
+  .photo-thumb{
+    width:100%; height:110px;
+    border-radius:6px;
+    overflow:hidden;
+    background:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .photo-thumb img{width:100%; height:100%; object-fit:cover;}
+  .photo-caption{
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:6px 8px;
+    font-size:12px;
+    font-family:inherit;
+  }
+  .photo-remove{
+    position:absolute; top:-8px; right:-8px;
+    width:24px; height:24px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--red);
+    font-size:14px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    line-height:1;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+  }
+
+  .print-header{display:none;}
+  .print-header-company-name{display:none;}
+  .print-footer{display:none;}
+  .print-only-circuits{display:none;}
+  .print-only-photos{display:none;}
+
+  .sign-col{display:flex; flex-direction:column; gap:16px;}
+  .sign-col-title{
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    color:var(--red);
+  }
+  .sign-note{
+    margin:0 20px 18px;
+    padding:10px 14px;
+    background:rgba(200,16,46,0.06);
+    border:1px solid rgba(200,16,46,0.25);
+    border-radius:8px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--red-700);
+  }
+
+  .field input.is-linked{
+    background:var(--bg-soft);
+    color:var(--text-muted);
+    cursor:not-allowed;
+  }
+
+  /* Generic data table (instruments, etc.) */
+  .rs-table-wrap{padding:16px 20px 20px; overflow-x:auto;}
+  table.rs-table{width:100%; border-collapse:collapse; min-width:560px;}
+  table.rs-table th{
+    text-align:left;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:0.4px;
+    color:var(--text-muted);
+    padding:0 8px 8px;
+    font-weight:700;
+  }
+  table.rs-table td{padding:5px 8px;}
+  table.rs-table td input[type=text], table.rs-table td input[type=date], table.rs-table td select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:8px 9px;
+    font-size:13.5px;
+    font-family:inherit;
+    background:#fff;
+  }
+  table.rs-table .col-del{width:36px;}
+  .rs-table-remove{
+    background:none;
+    border:1px solid var(--line);
+    border-radius:7px;
+    width:32px;height:32px;
+    color:var(--text-muted);
+    cursor:pointer;
+    font-size:14px;
+    transition:all .15s ease;
+  }
+  .rs-table-remove:hover{border-color:var(--red); color:var(--red);}
+  .rs-table-add{margin-top:4px;}
+
+  .form-footer{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:8px;
+  }
+
+  @page{
+    size:landscape;
+  }
+  .watermark-overlay{display:none;}
+  @media print{
+    header, .action-bar, .save-status, .circuit-bg, footer, .rs-table-remove, .rs-table-add{display:none !important;}
+    body{padding:0; font-size:11px;}
+    main{padding:8px 6px 0; max-width:100%;}
+    .cert-section{break-inside:avoid; border-color:#ccc; margin-bottom:3px; border-radius:5px;}
+    .page-break-after{break-after:page; page-break-after:always;}
+    .cert-section-header{
+      padding:3px 8px; font-size:10px;
+      background:none !important;
+      color:#000 !important;
+      font-weight:700;
+      border-bottom:2px solid #000;
+    }
+    .cert-section-header .num{
+      padding:0 4px;
+      background:none !important;
+      color:#000 !important;
+      border:1px solid #000;
+    }
+    .cert-section-sub{padding:3px 8px 0; font-size:8px;}
+    .cert-section-body{padding:3px 8px 4px; gap:2px 8px;}
+    .cert-section-body,
+    .cert-section-body.cols-2{grid-template-columns:repeat(4, 1fr);}
+    .field{gap:1px;}
+    .field label{font-size:8px;}
+    .field input[type=text], .field input[type=date], .field input[type=number], .field select, .field textarea{
+      padding:2px 4px; font-size:9px; border-color:#999;
+    }
+    .field textarea{min-height:16px;}
+    .field:has(textarea),
+    .field:has(.pill-group),
+    .field:has(.checkbox-grid),
+    .field:has(.logo-mode-switch){grid-column:1 / -1 !important;}
+    .sign-col{grid-column:span 2;}
+    .pill-group{gap:3px;}
+    .pill-group label{padding:2px 7px; font-size:9px;}
+    .checkbox-line{font-size:9px; gap:4px;}
+    .checkbox-line input{width:10px; height:10px;}
+    .checkbox-grid{gap:3px 12px;}
+    #checklist{display:grid; grid-template-columns:repeat(2, 1fr); column-gap:16px;}
+    .check-row{padding:2px 8px; gap:6px; break-inside:avoid;}
+    .check-row span.n{width:14px; height:14px; font-size:8px; margin-right:5px;}
+    .check-row .label-text{font-size:9px;}
+    .check-row select{padding:1px 5px; font-size:9px; min-width:60px;}
+    .sign-col{gap:4px;}
+    .sign-col-title{font-size:8px;}
+    .sign-note{margin:0 8px 5px; padding:4px 7px; font-size:8px;}
+    .hint{font-size:7px; padding-bottom:4px;}
+    .rs-table-wrap{padding:5px 10px 8px;}
+    table.rs-table th{font-size:9px; padding:0 5px 4px;}
+    table.rs-table td{padding:2px 5px;}
+    table.rs-table td input[type=text], table.rs-table td input[type=date], table.rs-table td select{
+      padding:3px 5px; font-size:10px;
+    }
+    .link-out{padding:8px 10px 10px;}
+    .link-out p{font-size:10px;}
+    .logo-field{display:none !important;}
+    .pdf-password-field{display:none !important;}
+    .photo-manage{display:none !important;}
+    .print-header{
+      display:flex;
+      align-items:center;
+      gap:24px;
+      padding:0 0 10px;
+      margin-bottom:8px;
+      border-bottom:3px solid #000;
+      break-inside:avoid;
+      break-after:avoid;
+    }
+    .print-header img{max-height:120px; max-width:400px; object-fit:contain;}
+    .print-header-company-name{
+      font-size:26px;
+      font-weight:800;
+      color:#000;
+      max-width:400px;
+      line-height:1.15;
+    }
+    .print-header-text{flex:1; text-align:right;}
+    .print-header-topline{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:9px;
+      font-weight:600;
+      color:#000;
+      border:1px solid #000;
+      border-radius:4px;
+      padding:3px 9px;
+      margin-bottom:6px;
+    }
+    .print-header h2{font-size:19px; font-weight:800; color:var(--red); margin:0; text-align:right;}
+    .print-header-subtitle{font-size:11px; font-weight:600; color:#000; margin-top:3px; font-style:italic;}
+    .print-footer{
+      display:block;
+      text-align:center;
+      font-size:8px;
+      color:#555;
+      padding-top:6px;
+      margin-top:6px;
+      border-top:1px solid #ccc;
+      break-before:avoid;
+    }
+    .print-only-circuits{
+      display:block;
+      break-before:page;
+    }
+    .print-only-circuits .rs-table-wrap{overflow:visible; padding:4px 4px 6px;}
+    .print-only-circuits table.circuit-table{min-width:0; width:100%; table-layout:fixed;}
+    .print-only-circuits table.circuit-table th,
+    .print-only-circuits table.circuit-table td{white-space:normal; word-break:break-word; overflow-wrap:break-word;}
+    .print-only-circuits table.rs-table th{font-size:7px; padding:0 3px 3px;}
+    .print-only-circuits table.rs-table td{font-size:8px; padding:2px 3px;}
+    .print-only-photos{
+      display:block;
+      break-before:page;
+    }
+    .photo-print-grid{
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:10px;
+      padding:6px 8px 10px;
+    }
+    .photo-print-item{
+      break-inside:avoid;
+      border:1px solid #ccc;
+      border-radius:5px;
+      padding:6px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .photo-print-item img{
+      width:100%;
+      max-height:230px;
+      object-fit:contain;
+      border-radius:3px;
+    }
+    .photo-print-item .cap{
+      font-size:8px;
+      color:#000;
+      text-align:center;
+    }
+    .watermark-overlay{
+      display:block;
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      pointer-events:none;
+      background-repeat:repeat;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
+  }
+</style>
+</head>
+<body data-protocol-id="certyfikat-1">
+
+<div class="circuit-bg"></div>
+<div class="watermark-overlay" id="printWatermark"></div>
+
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo">
+      <div class="bolt">
+        <svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+      </div>
+      <div>Protokoły Pomiarowe <span class="rs">Grid</span></div>
+    </a>
+    <div class="auth-buttons">
+      <a href="#" class="btn btn-outline">Zaloguj się</a>
+      <a href="#" class="btn btn-solid">Zarejestruj się</a>
+    </div>
+  </div>
+</header>
+
+<div class="action-bar">
+  <div class="action-bar-wrap">
+    <div>
+      <a href="index.html" class="back">← Strona główna</a>
+      <h1>Protokół Kontrolno-Pomiarowy odbioru nowej instalacji elektrycznej</h1>
+      <p class="subtitle">Nowe budownictwo lub całkowita wymiana instalacji w starym budownictwie</p>
+    </div>
+    <div class="action-buttons">
+      <button type="button" class="btn btn-outline btn-sm" id="clearBtn">Wyczyść formularz</button>
+      <button type="button" class="btn btn-solid btn-sm" id="printBtn">Drukuj / Zapisz jako PDF</button>
+      <button type="button" class="btn btn-outline btn-sm is-disabled" title="Dostępne po uruchomieniu kont i wysyłki e-mail">Wyślij mailem</button>
+      <button type="button" class="btn btn-outline btn-sm" id="lockedPdfBtn">Zablokowany PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="save-status">
+  <span class="pill"><span class="dot"></span> Wpisywane dane zapisują się automatycznie w tej przeglądarce (na razie lokalnie, bez konta)</span>
+</div>
+
+<main>
+
+<form id="certForm">
+
+  <!-- SECTION 1 -->
+  <div class="print-header">
+    <img class="print-header-logo" alt="Logo firmy" style="display:none;">
+    <div class="print-header-company-name" style="display:none;"></div>
+    <div class="print-header-text">
+      <div class="print-header-topline">
+        <span class="print-header-number"></span>
+      </div>
+      <h2>Protokół Kontrolno-Pomiarowy odbioru nowej instalacji elektrycznej</h2>
+      <p class="print-header-subtitle">Nowe budownictwo lub całkowita wymiana instalacji w starym budownictwie</p>
+    </div>
+  </div>
+  <div class="cert-section page-start">
+    <div class="cert-section-header"><span class="num">1</span>Dane wykonawcy, zleceniodawcy i instalacji</div>
+
+    <div class="cert-section-body cols-2">
+      <div class="field"><label>Numer protokołu</label><input type="text" name="protocol_number" placeholder="np. GRID/2026/001"></div>
+      <div class="field"><label>Data wystawienia protokołu</label><input type="date" name="protocol_date"></div>
+    </div>
+
+    <div class="cert-section-body cols-1 logo-field">
+      <div class="field">
+        <label>Logo / nazwa firmy (pojawi się na wydruku)</label>
+        <div class="logo-mode-switch">
+          <label><input type="radio" name="logo_mode" id="logoModeTextRadio" value="text" checked> Wpisz nazwę</label>
+          <label><input type="radio" name="logo_mode" id="logoModeImageRadio" value="image"> Wklej / wgraj logo</label>
+        </div>
+        <div class="logo-mode-panel" id="logoModeTextPanel">
+          <input type="text" id="companyNameInput" placeholder="np. Elektro-Serwis Jan Kowalski">
+        </div>
+        <div class="logo-mode-panel" id="logoModeImagePanel" style="display:none;">
+          <div class="logo-upload">
+            <div class="logo-preview" id="logoPreview">
+              <span class="logo-placeholder">Kliknij, aby dodać plik, albo wklej obraz (Ctrl+V)</span>
+              <img id="logoImg" style="display:none;">
+            </div>
+            <input type="file" accept="image/*" id="logoFileInput" style="display:none;">
+            <div class="logo-actions">
+              <button type="button" class="btn btn-outline btn-sm" id="logoChooseBtn">Wybierz plik</button>
+              <button type="button" class="btn btn-outline btn-sm" id="logoRemoveBtn">Usuń logo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cert-section-body cols-1 pdf-password-field">
+      <div class="field">
+        <label>Hasło zabezpieczające do "Zablokowany PDF"</label>
+        <input type="password" id="pdfOwnerPasswordInput" placeholder="Ustaw raz — będzie używane przy każdym eksporcie zablokowanego PDF-a" autocomplete="off">
+        <p class="hint">To hasło NIE jest wymagane do otwarcia pliku — chroni tylko przed edycją i kopiowaniem treści. Wspólne dla wszystkich protokołów, zapisywane lokalnie w tej przeglądarce.</p>
+      </div>
+    </div>
+
+    <div class="cert-section-sub">Wykonawca</div>
+    <div class="cert-section-body">
+      <div class="field span-2"><label>Nazwa firmy</label><input type="text" name="contractor_name"></div>
+      <div class="field"><label>Nr uprawnień / rejestracji</label><input type="text" name="contractor_reg"></div>
+      <div class="field span-2"><label>Adres</label><input type="text" name="contractor_address"></div>
+      <div class="field"><label>Kod pocztowy</label><input type="text" name="contractor_postcode"></div>
+      <div class="field span-2"><label>Telefon</label><input type="text" name="contractor_phone"></div>
+    </div>
+
+    <div class="cert-section-sub">Zleceniodawca</div>
+    <div class="cert-section-body">
+      <div class="field span-2"><label>Imię i nazwisko / nazwa</label><input type="text" name="client_name"></div>
+      <div class="field"><label>Telefon</label><input type="text" name="client_phone"></div>
+      <div class="field span-2"><label>Adres</label><input type="text" name="client_address"></div>
+      <div class="field"><label>Kod pocztowy</label><input type="text" name="client_postcode"></div>
+    </div>
+
+    <div class="cert-section-sub">Instalacja (miejsce wykonania prac)</div>
+    <div class="cert-section-body">
+      <div class="field span-2"><label>Użytkownik obiektu</label><input type="text" name="site_occupier"></div>
+      <div class="field"><label>Telefon</label><input type="text" name="site_phone"></div>
+      <div class="field span-2"><label>Adres</label><input type="text" name="site_address"></div>
+      <div class="field"><label>Kod pocztowy</label><input type="text" name="site_postcode"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">2</span>Projektant i wykonawca instalacji</div>
+
+    <div class="cert-section-sub">Projektant instalacji</div>
+    <div class="cert-section-body">
+      <div class="field span-3">
+        <label>Dane projektanta</label>
+        <select class="source-select" data-prefix="designer">
+          <option value="other" selected>Inny</option>
+          <option value="same">Te same dane co wykonawca kontroli</option>
+        </select>
+      </div>
+      <div class="field span-2"><label>Imię i nazwisko / nazwa firmy</label><input type="text" name="designer_name"></div>
+      <div class="field"><label>Nr uprawnień</label><input type="text" name="designer_reg"></div>
+      <div class="field span-2"><label>Adres</label><input type="text" name="designer_address"></div>
+      <div class="field"><label>Kod pocztowy</label><input type="text" name="designer_postcode"></div>
+      <div class="field"><label>Telefon</label><input type="text" name="designer_phone"></div>
+      <div class="field"><label>NIP (jeśli firma)</label><input type="text" name="designer_nip"></div>
+    </div>
+
+    <div class="cert-section-sub">Wykonawca instalacji</div>
+    <div class="cert-section-body">
+      <div class="field span-3">
+        <label>Dane wykonawcy instalacji</label>
+        <select class="source-select" data-prefix="installer">
+          <option value="other" selected>Inny</option>
+          <option value="same">Te same dane co wykonawca kontroli</option>
+        </select>
+      </div>
+      <div class="field span-2"><label>Imię i nazwisko / nazwa firmy</label><input type="text" name="installer_name"></div>
+      <div class="field"><label>Nr uprawnień</label><input type="text" name="installer_reg"></div>
+      <div class="field span-2"><label>Adres</label><input type="text" name="installer_address"></div>
+      <div class="field"><label>Kod pocztowy</label><input type="text" name="installer_postcode"></div>
+      <div class="field"><label>Telefon</label><input type="text" name="installer_phone"></div>
+      <div class="field"><label>NIP (jeśli firma)</label><input type="text" name="installer_nip"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">3</span>Zakres wykonanych prac elektrycznych</div>
+    <div class="cert-section-body cols-2">
+      <div class="field"><label>Data zakończenia prac</label><input type="date" name="work_date"></div>
+      <div class="field">
+        <label>Rodzaj instalacji</label>
+        <div class="pill-group" data-name="work_type">
+          <input type="radio" id="wt1" name="work_type" value="Nowa instalacja"><label for="wt1">Nowa instalacja</label>
+          <input type="radio" id="wt2" name="work_type" value="Rozbudowa"><label for="wt2">Rozbudowa</label>
+          <input type="radio" id="wt3" name="work_type" value="Zmiana"><label for="wt3">Zmiana</label>
+          <input type="radio" id="wt4" name="work_type" value="Wymiana rozdzielnicy"><label for="wt4">Wymiana rozdzielnicy</label>
+        </div>
+      </div>
+      <div class="field span-2">
+        <label>Opis i zakres prac objętych protokołem</label>
+        <textarea name="work_description"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">4</span>Uwagi dotyczące istniejącej instalacji</div>
+    <div class="cert-section-body cols-1">
+      <div class="field">
+        <label>Uwagi (np. w przypadku rozbudowy lub zmiany)</label>
+        <textarea name="existing_remarks"></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">5</span>Deklaracja wykonawcy — projekt, wykonanie, kontrola i badania</div>
+    <div class="cert-section-body cols-2">
+      <div class="field span-2">
+        <label>Instalacja nadaje się do eksploatacji</label>
+        <div class="pill-group assessment">
+          <input type="radio" id="fa1" name="fit_for_use" value="Tak"><label for="fa1" class="satisfactory">Tak</label>
+          <input type="radio" id="fa2" name="fit_for_use" value="Nie"><label for="fa2" class="unsatisfactory">Nie</label>
+        </div>
+      </div>
+      <div class="field"><label>Zgodność z normą / przepisami</label><input type="text" name="compliance_standard" placeholder="np. PN-HD 60364"></div>
+      <div class="field"><label>Odstępstwa (jeśli występują)</label><input type="text" name="departures" placeholder="brak / opisz"></div>
+      <div class="field span-2"><label>Osoba odpowiedzialna — imię i nazwisko</label><input type="text" name="responsible_name"></div>
+      <div class="field"><label>Funkcja</label><input type="text" name="responsible_role" placeholder="projektant / wykonawca / kontrolujący"></div>
+      <div class="field"><label>Nr uprawnień</label><input type="text" name="responsible_reg"></div>
+      <div class="field"><label>Data ważności uprawnień</label><input type="date" name="responsible_reg_expiry"></div>
+      <div class="field"><label>Podpis</label><input type="text" name="responsible_signature" placeholder="imię i nazwisko jako podpis"></div>
+      <div class="field"><label>Data</label><input type="date" name="responsible_date"></div>
+      <div class="field"><label>Zalecany termin kolejnej kontroli</label><input type="date" name="next_inspection_date"></div>
+      <div class="field"><label>Sprawdzone przez (kontrola jakości)</label><input type="text" name="reviewed_name"></div>
+      <div class="field"><label>Podpis</label><input type="text" name="reviewed_signature"></div>
+      <div class="field"><label>Data</label><input type="date" name="reviewed_date"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">6</span>Charakterystyka zasilania i układ uziemienia</div>
+    <div class="cert-section-body cols-2">
+      <div class="field span-2">
+        <label>Układ uziemienia</label>
+        <div class="pill-group">
+          <input type="radio" id="es1" name="earthing_system" value="TN-C"><label for="es1">TN-C</label>
+          <input type="radio" id="es2" name="earthing_system" value="TN-S"><label for="es2">TN-S</label>
+          <input type="radio" id="es3" name="earthing_system" value="TN-C-S"><label for="es3">TN-C-S</label>
+          <input type="radio" id="es4" name="earthing_system" value="TT"><label for="es4">TT</label>
+          <input type="radio" id="es5" name="earthing_system" value="IT"><label for="es5">IT</label>
+        </div>
+      </div>
+      <div class="field"><label>Urządzenie zabezpieczające — norma</label><input type="text" name="supply_device_standard"></div>
+      <div class="field"><label>Typ</label><input type="text" name="supply_device_type"></div>
+      <div class="field"><label>Prąd znamionowy [A]</label><input type="text" name="supply_device_rating"></div>
+      <div class="field span-2">
+        <label>Liczba i rodzaj przewodów czynnych</label>
+        <div class="pill-group">
+          <input type="radio" id="ct1" name="conductors_type" value="1-faz. 2-przew."><label for="ct1">1-faz. 2-przew.</label>
+          <input type="radio" id="ct2" name="conductors_type" value="2-faz. 3-przew."><label for="ct2">2-faz. 3-przew.</label>
+          <input type="radio" id="ct3" name="conductors_type" value="3-faz. 3-przew."><label for="ct3">3-faz. 3-przew.</label>
+          <input type="radio" id="ct4" name="conductors_type" value="3-faz. 4-przew."><label for="ct4">3-faz. 4-przew.</label>
+          <input type="radio" id="ct5" name="conductors_type" value="Inne"><label for="ct5">Inne</label>
+        </div>
+      </div>
+      <div class="field"><label>Napięcie międzyprzewodowe U [V]</label><input type="text" name="voltage_line"></div>
+      <div class="field"><label>Napięcie fazowe U0 [V]</label><input type="text" name="voltage_phase"></div>
+      <div class="field"><label>Częstotliwość f [Hz]</label><input type="text" name="frequency"></div>
+      <div class="field"><label>Prąd zwarciowy spodziewany Ipf [kA]</label><input type="text" name="fault_current"></div>
+      <div class="field"><label>Impedancja pętli zwarcia Ze [Ω]</label><input type="text" name="loop_impedance"></div>
+      <div class="field span-2">
+        <label class="checkbox-line"><input type="checkbox" name="polarity_confirmed"> Potwierdzono polaryzację zasilania</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">7</span>Dane instalacji, uziemienie i wyłącznik główny</div>
+    <div class="cert-section-body cols-2">
+      <div class="field"><label>Moc zapotrzebowana / obciążenie [kVA/A]</label><input type="text" name="max_demand"></div>
+      <div class="field">
+        <label>Sposób uziemienia</label>
+        <div class="pill-group">
+          <input type="radio" id="em1" name="earthing_means" value="Uziom dostawcy energii"><label for="em1">Uziom dostawcy energii</label>
+          <input type="radio" id="em2" name="earthing_means" value="Uziom instalacji własnej"><label for="em2">Uziom instalacji własnej</label>
+        </div>
+      </div>
+      <div class="field"><label>Rodzaj uziomu</label><input type="text" name="electrode_type" placeholder="pręt, taśma, itp."></div>
+      <div class="field"><label>Lokalizacja uziomu</label><input type="text" name="electrode_location"></div>
+      <div class="field"><label>Rezystancja uziemienia [Ω]</label><input type="text" name="electrode_resistance"></div>
+      <div class="field"><label>Przewód uziemiający — materiał</label><input type="text" name="earthing_conductor_material"></div>
+      <div class="field"><label>Przekrój [mm²]</label><input type="text" name="earthing_conductor_csa"></div>
+      <div class="field"><label class="checkbox-line" style="margin-top:22px"><input type="checkbox" name="earthing_conductor_verified"> Ciągłość sprawdzona</label></div>
+      <div class="field"><label>Główne przewody wyrównawcze — materiał</label><input type="text" name="bonding_conductor_material"></div>
+      <div class="field"><label>Przekrój [mm²]</label><input type="text" name="bonding_conductor_csa"></div>
+      <div class="field"><label class="checkbox-line" style="margin-top:22px"><input type="checkbox" name="bonding_conductor_verified"> Ciągłość sprawdzona</label></div>
+
+      <div class="field span-2">
+        <label>Główne połączenia wyrównawcze</label>
+        <div class="checkbox-grid">
+          <label class="checkbox-line"><input type="checkbox" name="bond_water"> Rury wodociągowe</label>
+          <label class="checkbox-line"><input type="checkbox" name="bond_gas"> Rury gazowe</label>
+          <label class="checkbox-line"><input type="checkbox" name="bond_steel"> Konstrukcja stalowa</label>
+          <label class="checkbox-line"><input type="checkbox" name="bond_oil"> Rury olejowe</label>
+          <label class="checkbox-line"><input type="checkbox" name="bond_lightning"> Instalacja odgromowa</label>
+        </div>
+      </div>
+      <div class="field"><label>Inne (opisz)</label><input type="text" name="bond_other"></div>
+
+      <div class="field"><label>Wyłącznik główny — lokalizacja</label><input type="text" name="main_switch_location"></div>
+      <div class="field"><label>Norma</label><input type="text" name="main_switch_standard"></div>
+      <div class="field"><label>Typ</label><input type="text" name="main_switch_type"></div>
+      <div class="field"><label>Prąd znamionowy [A]</label><input type="text" name="main_switch_rating"></div>
+      <div class="field"><label>Liczba biegunów</label><input type="text" name="main_switch_poles"></div>
+      <div class="field"><label>Napięcie znamionowe [V]</label><input type="text" name="main_switch_voltage"></div>
+
+      <div class="field"><label>RCD jako wyłącznik główny — IΔn [mA]</label><input type="text" name="rcd_operating_current"></div>
+      <div class="field"><label>Typ RCD</label><input type="text" name="rcd_type"></div>
+      <div class="field"><label>Czas zadziałania [ms]</label><input type="text" name="rcd_time"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 7 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">8</span>Wykaz sprawdzonych elementów</div>
+    <div id="checklist">
+      <div class="check-row"><span class="n">1</span><span class="label-text">Stan urządzenia przyłączeniowego (kontrola wzrokowa)</span><select name="check_1"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+      <div class="check-row"><span class="n">2</span><span class="label-text">Równoległe lub przełączane alternatywne źródła zasilania</span><select name="check_2"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+      <div class="check-row"><span class="n">3</span><span class="label-text">Środek ochrony: samoczynne wyłączenie zasilania (ADS)</span><select name="check_3"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+      <div class="check-row"><span class="n">4</span><span class="label-text">Ochrona podstawowa</span><select name="check_4"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+      <div class="check-row"><span class="n">5</span><span class="label-text">Środki ochrony inne niż ADS</span><select name="check_5"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+      <div class="check-row"><span class="n">6</span><span class="label-text">Ochrona dodatkowa</span><select name="check_6"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+      <div class="check-row"><span class="n">7</span><span class="label-text">Wyposażenie rozdzielcze</span><select name="check_7"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+      <div class="check-row"><span class="n">8</span><span class="label-text">Obwody (rozdzielcze i odbiorcze)</span><select name="check_8"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+      <div class="check-row"><span class="n">9</span><span class="label-text">Izolacja i łączenie</span><select name="check_9"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+      <div class="check-row"><span class="n">10</span><span class="label-text">Urządzenia odbiorcze podłączone na stałe</span><select name="check_10"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+      <div class="check-row"><span class="n">11</span><span class="label-text">Oznakowanie i tabliczki informacyjne</span><select name="check_11"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+      <div class="check-row"><span class="n">12</span><span class="label-text">Pomieszczenia z wanną lub prysznicem</span><select name="check_12"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+      <div class="check-row"><span class="n">13</span><span class="label-text">Inne instalacje lub lokalizacje specjalne</span><select name="check_13"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+      <div class="check-row"><span class="n">14</span><span class="label-text">Instalacja niskiego napięcia prosumenta</span><select name="check_14"><option value="">—</option><option value="ok">✓</option><option value="na">N/D</option></select></div>
+    </div>
+    <div class="cert-section-body cols-2">
+      <div class="field"><label>Sprawdzone przez — imię i nazwisko</label><input type="text" name="inspected_by_name"></div>
+      <div class="field"><label>Podpis</label><input type="text" name="inspected_by_signature"></div>
+      <div class="field"><label>Data</label><input type="date" name="inspected_by_date"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 9 -->
+  <div class="cert-section page-start">
+    <div class="cert-section-header"><span class="num">9</span>Harmonogram obwodów i wyniki pomiarów</div>
+    <div class="link-out">
+      <p>Szczegółowy harmonogram obwodów (przewody, zabezpieczenia, RCD, wyniki pomiarów) prowadzony jest na osobnej stronie, zgodnie z wymaganiami normy PN-HD 60364-6.</p>
+      <a href="certyfikat-1-obwody.html" class="btn btn-solid btn-sm">Otwórz harmonogram obwodów →</a>
+    </div>
+  </div>
+
+  <!-- SECTION 10 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">10</span>Wykaz przyrządów pomiarowych</div>
+    <div class="rs-table-wrap">
+      <table class="rs-table instr-table">
+        <thead>
+          <tr>
+            <th class="col-instr-name">Nazwa / model przyrządu</th>
+            <th class="col-instr-serial">Nr seryjny</th>
+            <th class="col-instr-cal">Data ważności kalibracji</th>
+            <th class="col-del"></th>
+          </tr>
+        </thead>
+        <tbody id="instrBody"></tbody>
+      </table>
+      <button type="button" class="btn btn-outline btn-sm rs-table-add" id="instrAddBtn">+ Dodaj przyrząd</button>
+    </div>
+  </div>
+
+  <!-- SECTION 11 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">11</span>Podpisy stron</div>
+    <div class="cert-section-body cols-2">
+      <div class="sign-col">
+        <div class="sign-col-title">Zleceniobiorca (wykonawca)</div>
+        <div class="field"><label>Imię i nazwisko / firma</label><input type="text" name="party_contractor_name"></div>
+        <div class="field"><label>NIP (jeśli firma)</label><input type="text" name="party_contractor_nip"></div>
+        <div class="field"><label>Podpis</label><input type="text" name="party_contractor_signature" placeholder="imię i nazwisko jako podpis"></div>
+        <div class="field"><label>Data</label><input type="date" name="party_contractor_date"></div>
+      </div>
+      <div class="sign-col">
+        <div class="sign-col-title">Zleceniodawca</div>
+        <div class="field"><label>Imię i nazwisko</label><input type="text" name="party_client_name"></div>
+        <div class="field"><label>NIP (jeśli firma)</label><input type="text" name="party_client_nip"></div>
+        <div class="field"><label>Podpis</label><input type="text" name="party_client_signature" placeholder="imię i nazwisko jako podpis"></div>
+        <div class="field"><label>Data</label><input type="date" name="party_client_date"></div>
+      </div>
+    </div>
+    <p class="sign-note">⚠ Protokół jest ważny wyłącznie po podpisaniu przez obie strony.</p>
+  </div>
+
+  <!-- SECTION 12 -->
+  <div class="cert-section photo-manage">
+    <div class="cert-section-header"><span class="num">12</span>Dokumentacja fotograficzna</div>
+    <div class="rs-table-wrap">
+      <p class="hint" style="padding:0 0 10px;">Dodaj zdjęcia z instalacji (np. rozdzielnica, tabliczki znamionowe, wykryte usterki). Zostaną wydrukowane na ostatnich stronach protokołu.</p>
+      <div class="photo-paste-zone" id="photoPasteZone" tabindex="0">
+        <span>Kliknij, aby dodać zdjęcia, albo wklej ze schowka (Ctrl+V)</span>
+      </div>
+      <input type="file" accept="image/*" multiple id="photoFileInput" style="display:none;">
+      <div class="photo-grid" id="photoGrid"></div>
+    </div>
+  </div>
+
+  <div class="print-footer">&copy; GRID RS 2026 &middot; Wszelkie prawa zastrzeżone</div>
+
+  <div class="print-only-circuits" id="printOnlyCircuits">
+    <div class="print-header">
+      <img class="print-header-logo" alt="Logo firmy" style="display:none;">
+      <div class="print-header-company-name" style="display:none;"></div>
+      <div class="print-header-text">
+        <div class="print-header-topline">
+          <span class="print-header-number"></span>
+        </div>
+        <h2>Protokół Kontrolno-Pomiarowy odbioru nowej instalacji elektrycznej</h2>
+        <p class="print-header-subtitle">Nowe budownictwo lub całkowita wymiana instalacji w starym budownictwie</p>
+      </div>
+    </div>
+    <div class="cert-section">
+      <div class="cert-section-header">Załącznik &middot; Harmonogram obwodów i wyniki pomiarów</div>
+      <div class="rs-table-wrap">
+        <table class="rs-table circuit-table">
+          <thead>
+            <tr>
+              <th>Obwód (opis)</th>
+              <th>Przekrój [mm&sup2;]</th>
+              <th>Charakterystyka</th>
+              <th>Zabezpieczenie [A]</th>
+              <th>Rodzaj RCD</th>
+              <th>RCD I&Delta;n [mA]</th>
+              <th>Ciągłość PE [&Omega;]</th>
+              <th>Izolacja [M&Omega;]</th>
+              <th>Zs [&Omega;]</th>
+              <th>Czas RCD [ms]</th>
+              <th>Wynik</th>
+            </tr>
+          </thead>
+          <tbody id="printCircuitBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="print-footer">&copy; GRID RS 2026 &middot; Wszelkie prawa zastrzeżone</div>
+  </div>
+
+  <div class="print-only-photos" id="printOnlyPhotos">
+    <div class="print-header">
+      <img class="print-header-logo" alt="Logo firmy" style="display:none;">
+      <div class="print-header-company-name" style="display:none;"></div>
+      <div class="print-header-text">
+        <div class="print-header-topline">
+          <span class="print-header-number"></span>
+        </div>
+        <h2>Protokół Kontrolno-Pomiarowy odbioru nowej instalacji elektrycznej</h2>
+        <p class="print-header-subtitle">Nowe budownictwo lub całkowita wymiana instalacji w starym budownictwie</p>
+      </div>
+    </div>
+    <div class="cert-section">
+      <div class="cert-section-header">Załącznik &middot; Dokumentacja fotograficzna</div>
+      <div class="photo-print-grid" id="printPhotoGrid"></div>
+    </div>
+    <div class="print-footer">&copy; GRID RS 2026 &middot; Wszelkie prawa zastrzeżone</div>
+  </div>
+
+</form>
+</main>
+
+<footer>
+  &copy; 2026 Protokoły Pomiarowe Grid. Wszystkie prawa zastrzeżone.
+</footer>
+
+<script src="libs/jspdf.umd.min.js"></script>
+<script src="libs/html2canvas.min.js"></script>
+<script>
+(function(){
+  var form = document.getElementById('certForm');
+  var STORAGE_KEY = 'rs-certyfikat-1';
+
+  function escapeXml(s){
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function buildWatermark(){
+    var pn = form.elements['protocol_number'] ? form.elements['protocol_number'].value : '';
+    var text = pn ? ('GRID · ' + pn) : 'GRID';
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180">' +
+      '<text x="160" y="95" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="rgba(0,0,0,0.07)" text-anchor="middle" transform="rotate(-30 160 95)">' + escapeXml(text) + '</text>' +
+      '</svg>';
+    var url = 'data:image/svg+xml,' + encodeURIComponent(svg);
+    var el = document.getElementById('printWatermark');
+    if (el) el.style.backgroundImage = 'url("' + url + '")';
+  }
+
+  buildWatermark();
+  window.addEventListener('beforeprint', buildWatermark);
+
+  var CIRCUIT_KEY_FOR_PRINT = 'rs-certyfikat-1-circuits';
+
+  function renderPrintCircuits(){
+    var wrap = document.getElementById('printOnlyCircuits');
+    var tbody = document.getElementById('printCircuitBody');
+    var raw = localStorage.getItem(CIRCUIT_KEY_FOR_PRINT);
+    var rows = [];
+    if (raw){
+      try { rows = JSON.parse(raw); } catch(e){ rows = []; }
+    }
+    rows = rows.filter(function(r){
+      return r.desc || r.csa || r.mcbtype || r.mcbrating || r.rcdtype || r.rcdin || r.continuity || r.insulation || r.zs || r.rcdtime || r.result;
+    });
+    if (!rows.length){
+      wrap.style.display = 'none';
+      return;
+    }
+    tbody.innerHTML = '';
+    rows.forEach(function(r){
+      var tr = document.createElement('tr');
+      [r.desc, r.csa, r.mcbtype, r.mcbrating, r.rcdtype, r.rcdin, r.continuity, r.insulation, r.zs, r.rcdtime, r.result].forEach(function(val){
+        var td = document.createElement('td');
+        td.textContent = val || '—';
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    wrap.style.display = '';
+  }
+
+  renderPrintCircuits();
+  window.addEventListener('beforeprint', renderPrintCircuits);
+
+  var LOGO_KEY = 'rs-company-logo';
+  var NAME_KEY = 'rs-company-name';
+  var MODE_KEY = 'rs-company-logo-mode';
+  var logoPreview = document.getElementById('logoPreview');
+  var logoImg = document.getElementById('logoImg');
+  var logoPlaceholder = logoPreview.querySelector('.logo-placeholder');
+  var logoFileInput = document.getElementById('logoFileInput');
+  var printHeaderLogos = document.querySelectorAll('.print-header-logo');
+  var printHeaderCompanyNames = document.querySelectorAll('.print-header-company-name');
+  var companyNameInput = document.getElementById('companyNameInput');
+  var logoModeTextRadio = document.getElementById('logoModeTextRadio');
+  var logoModeImageRadio = document.getElementById('logoModeImageRadio');
+  var logoModeTextPanel = document.getElementById('logoModeTextPanel');
+  var logoModeImagePanel = document.getElementById('logoModeImagePanel');
+
+  function updatePrintBrand(){
+    var mode = localStorage.getItem(MODE_KEY) || 'text';
+    if (mode === 'image'){
+      var logoData = localStorage.getItem(LOGO_KEY);
+      printHeaderLogos.forEach(function(el){
+        if (logoData){ el.src = logoData; el.style.display = 'block'; }
+        else { el.style.display = 'none'; }
+      });
+      printHeaderCompanyNames.forEach(function(el){ el.style.display = 'none'; });
+    } else {
+      var name = localStorage.getItem(NAME_KEY) || '';
+      printHeaderCompanyNames.forEach(function(el){
+        if (name){ el.textContent = name; el.style.display = 'block'; }
+        else { el.style.display = 'none'; }
+      });
+      printHeaderLogos.forEach(function(el){ el.style.display = 'none'; });
+    }
+  }
+
+  function applyMode(mode){
+    localStorage.setItem(MODE_KEY, mode);
+    logoModeTextPanel.style.display = (mode === 'image') ? 'none' : 'block';
+    logoModeImagePanel.style.display = (mode === 'image') ? 'block' : 'none';
+    updatePrintBrand();
+  }
+
+  function setLogo(dataUrl){
+    if (dataUrl){
+      logoImg.src = dataUrl;
+      logoImg.style.display = 'block';
+      logoPlaceholder.style.display = 'none';
+      localStorage.setItem(LOGO_KEY, dataUrl);
+    } else {
+      logoImg.removeAttribute('src');
+      logoImg.style.display = 'none';
+      logoPlaceholder.style.display = 'block';
+      localStorage.removeItem(LOGO_KEY);
+    }
+    updatePrintBrand();
+  }
+
+  function readFileAsDataUrl(file, cb){
+    var reader = new FileReader();
+    reader.onload = function(e){ cb(e.target.result); };
+    reader.readAsDataURL(file);
+  }
+
+  logoPreview.addEventListener('click', function(){ logoFileInput.click(); });
+  document.getElementById('logoChooseBtn').addEventListener('click', function(){ logoFileInput.click(); });
+  logoFileInput.addEventListener('change', function(){
+    if (logoFileInput.files && logoFileInput.files[0]) readFileAsDataUrl(logoFileInput.files[0], setLogo);
+  });
+  document.getElementById('logoRemoveBtn').addEventListener('click', function(){
+    setLogo(null);
+    logoFileInput.value = '';
+  });
+  document.addEventListener('paste', function(e){
+    if ((localStorage.getItem(MODE_KEY) || 'text') !== 'image') return;
+    var items = (e.clipboardData || window.clipboardData).items;
+    if (!items) return;
+    for (var i = 0; i < items.length; i++){
+      if (items[i].type.indexOf('image') !== -1){
+        var file = items[i].getAsFile();
+        readFileAsDataUrl(file, setLogo);
+        break;
+      }
+    }
+  });
+
+  logoModeTextRadio.addEventListener('change', function(){ if (this.checked) applyMode('text'); });
+  logoModeImageRadio.addEventListener('change', function(){ if (this.checked) applyMode('image'); });
+
+  companyNameInput.addEventListener('input', function(){
+    localStorage.setItem(NAME_KEY, companyNameInput.value);
+    updatePrintBrand();
+  });
+
+  function loadLogo(){
+    var saved = localStorage.getItem(LOGO_KEY);
+    if (saved){
+      logoImg.src = saved;
+      logoImg.style.display = 'block';
+      logoPlaceholder.style.display = 'none';
+    }
+  }
+
+  function loadBrandSettings(){
+    companyNameInput.value = localStorage.getItem(NAME_KEY) || '';
+    loadLogo();
+    var mode = localStorage.getItem(MODE_KEY) || 'text';
+    logoModeTextRadio.checked = (mode !== 'image');
+    logoModeImageRadio.checked = (mode === 'image');
+    logoModeTextPanel.style.display = (mode === 'image') ? 'none' : 'block';
+    logoModeImagePanel.style.display = (mode === 'image') ? 'block' : 'none';
+    updatePrintBrand();
+  }
+
+  loadBrandSettings();
+
+  function updatePrintHeaderNumber(){
+    var pn = form.elements['protocol_number'] ? form.elements['protocol_number'].value : '';
+    document.querySelectorAll('.print-header-topline').forEach(function(box){
+      var el = box.querySelector('.print-header-number');
+      if (el) el.textContent = pn ? ('Nr protokołu: ' + pn) : '';
+      box.style.display = pn ? 'inline-flex' : 'none';
+    });
+  }
+
+  updatePrintHeaderNumber();
+
+  function saveData(){
+    var data = {};
+    var elements = form.elements;
+    for (var i = 0; i < elements.length; i++){
+      var el = elements[i];
+      if (!el.name) continue;
+      if (el.type === 'radio'){
+        if (el.checked) data[el.name] = el.value;
+      } else if (el.type === 'checkbox'){
+        data[el.name] = el.checked;
+      } else {
+        data[el.name] = el.value;
+      }
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    buildWatermark();
+    updatePrintHeaderNumber();
+  }
+
+  function loadData(){
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    var data;
+    try { data = JSON.parse(raw); } catch(e){ return; }
+    var elements = form.elements;
+    for (var i = 0; i < elements.length; i++){
+      var el = elements[i];
+      if (!el.name || !(el.name in data)) continue;
+      if (el.type === 'radio'){
+        el.checked = (el.value === data[el.name]);
+      } else if (el.type === 'checkbox'){
+        el.checked = !!data[el.name];
+      } else {
+        el.value = data[el.name];
+      }
+    }
+  }
+
+  var SOURCE_FIELDS = ['name', 'reg', 'address', 'postcode', 'phone'];
+
+  function syncFromContractor(prefix){
+    SOURCE_FIELDS.forEach(function(f){
+      var src = form.elements['contractor_' + f];
+      var dst = form.elements[prefix + '_' + f];
+      if (src && dst) dst.value = src.value;
+    });
+  }
+
+  function setLinked(prefix, linked){
+    SOURCE_FIELDS.forEach(function(f){
+      var dst = form.elements[prefix + '_' + f];
+      if (!dst) return;
+      dst.readOnly = linked;
+      dst.classList.toggle('is-linked', linked);
+    });
+  }
+
+  function applySourceSelect(sel){
+    var prefix = sel.dataset.prefix;
+    if (sel.value === 'same'){
+      syncFromContractor(prefix);
+      setLinked(prefix, true);
+    } else {
+      setLinked(prefix, false);
+    }
+  }
+
+  var sourceSelects = document.querySelectorAll('.source-select');
+  sourceSelects.forEach(function(sel){
+    sel.addEventListener('change', function(){
+      applySourceSelect(sel);
+      saveData();
+    });
+  });
+
+  SOURCE_FIELDS.forEach(function(f){
+    var src = form.elements['contractor_' + f];
+    if (!src) return;
+    src.addEventListener('input', function(){
+      sourceSelects.forEach(function(sel){
+        if (sel.value === 'same') syncFromContractor(sel.dataset.prefix);
+      });
+    });
+  });
+
+  var INSTR_KEY = 'rs-certyfikat-1-instruments';
+  var instrBody = document.getElementById('instrBody');
+
+  function addInstrRow(rowData){
+    rowData = rowData || {};
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><input type="text" class="instr-name" placeholder="np. miernik wielofunkcyjny"></td>' +
+      '<td><input type="text" class="instr-serial" placeholder="nr seryjny"></td>' +
+      '<td><input type="date" class="instr-cal"></td>' +
+      '<td><button type="button" class="rs-table-remove" title="Usuń wiersz">✕</button></td>';
+    tr.querySelector('.instr-name').value = rowData.name || '';
+    tr.querySelector('.instr-serial').value = rowData.serial || '';
+    tr.querySelector('.instr-cal').value = rowData.cal || '';
+    tr.querySelector('.rs-table-remove').addEventListener('click', function(){
+      tr.remove();
+      saveInstruments();
+    });
+    tr.addEventListener('input', saveInstruments);
+    tr.addEventListener('change', saveInstruments);
+    instrBody.appendChild(tr);
+  }
+
+  function saveInstruments(){
+    var rows = [];
+    instrBody.querySelectorAll('tr').forEach(function(tr){
+      rows.push({
+        name: tr.querySelector('.instr-name').value,
+        serial: tr.querySelector('.instr-serial').value,
+        cal: tr.querySelector('.instr-cal').value
+      });
+    });
+    localStorage.setItem(INSTR_KEY, JSON.stringify(rows));
+  }
+
+  function loadInstruments(){
+    var raw = localStorage.getItem(INSTR_KEY);
+    var rows = [];
+    if (raw){
+      try { rows = JSON.parse(raw); } catch(e){ rows = []; }
+    }
+    if (!rows.length){
+      addInstrRow(); addInstrRow();
+    } else {
+      rows.forEach(addInstrRow);
+    }
+  }
+
+  document.getElementById('instrAddBtn').addEventListener('click', function(){
+    addInstrRow();
+    saveInstruments();
+  });
+
+  var PHOTOS_KEY = 'rs-certyfikat-1-photos';
+  var photoGrid = document.getElementById('photoGrid');
+  var photoFileInput = document.getElementById('photoFileInput');
+  var photoPasteZone = document.getElementById('photoPasteZone');
+  var photos = [];
+
+  function loadPhotos(){
+    var raw = localStorage.getItem(PHOTOS_KEY);
+    try { photos = raw ? JSON.parse(raw) : []; } catch(e){ photos = []; }
+  }
+
+  function savePhotos(){
+    localStorage.setItem(PHOTOS_KEY, JSON.stringify(photos));
+  }
+
+  function renderPhotoGrid(){
+    photoGrid.innerHTML = '';
+    photos.forEach(function(p){
+      var item = document.createElement('div');
+      item.className = 'photo-item';
+
+      var removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'photo-remove';
+      removeBtn.title = 'Usuń zdjęcie';
+      removeBtn.textContent = '×';
+      removeBtn.addEventListener('click', function(){
+        photos = photos.filter(function(x){ return x.id !== p.id; });
+        savePhotos();
+        renderPhotoGrid();
+      });
+
+      var thumb = document.createElement('div');
+      thumb.className = 'photo-thumb';
+      var img = document.createElement('img');
+      img.src = p.dataUrl;
+      img.alt = '';
+      thumb.appendChild(img);
+
+      var caption = document.createElement('input');
+      caption.type = 'text';
+      caption.className = 'photo-caption';
+      caption.placeholder = 'Opis (opcjonalnie)';
+      caption.value = p.caption || '';
+      caption.addEventListener('input', function(){
+        p.caption = caption.value;
+        savePhotos();
+      });
+
+      item.appendChild(removeBtn);
+      item.appendChild(thumb);
+      item.appendChild(caption);
+      photoGrid.appendChild(item);
+    });
+  }
+
+  function addPhotoFile(file){
+    if (!file || file.type.indexOf('image') === -1) return;
+    readFileAsDataUrl(file, function(dataUrl){
+      photos.push({id:'p'+Date.now()+Math.random().toString(36).slice(2), dataUrl:dataUrl, caption:''});
+      savePhotos();
+      renderPhotoGrid();
+    });
+  }
+
+  photoPasteZone.addEventListener('click', function(){ photoFileInput.click(); });
+  photoFileInput.addEventListener('change', function(){
+    if (photoFileInput.files) Array.prototype.forEach.call(photoFileInput.files, addPhotoFile);
+    photoFileInput.value = '';
+  });
+  photoPasteZone.addEventListener('paste', function(e){
+    e.stopPropagation();
+    var items = (e.clipboardData || window.clipboardData).items;
+    if (!items) return;
+    for (var i = 0; i < items.length; i++){
+      if (items[i].type.indexOf('image') !== -1) addPhotoFile(items[i].getAsFile());
+    }
+  });
+
+  function renderPrintPhotos(){
+    var wrap = document.getElementById('printOnlyPhotos');
+    var grid = document.getElementById('printPhotoGrid');
+    if (!photos.length){
+      wrap.style.display = 'none';
+      return;
+    }
+    grid.innerHTML = '';
+    photos.forEach(function(p){
+      var card = document.createElement('div');
+      card.className = 'photo-print-item';
+      var img = document.createElement('img');
+      img.src = p.dataUrl;
+      img.alt = '';
+      card.appendChild(img);
+      if (p.caption){
+        var cap = document.createElement('div');
+        cap.className = 'cap';
+        cap.textContent = p.caption;
+        card.appendChild(cap);
+      }
+      grid.appendChild(card);
+    });
+    wrap.style.display = '';
+  }
+
+  loadPhotos();
+  renderPhotoGrid();
+  renderPrintPhotos();
+  window.addEventListener('beforeprint', renderPrintPhotos);
+
+  form.addEventListener('input', saveData);
+  form.addEventListener('change', saveData);
+  loadData();
+  loadInstruments();
+  sourceSelects.forEach(applySourceSelect);
+
+  document.getElementById('clearBtn').addEventListener('click', function(){
+    if (!confirm('Wyczyścić wszystkie wpisane dane w tym formularzu?')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(INSTR_KEY);
+    localStorage.removeItem(PHOTOS_KEY);
+    form.reset();
+    instrBody.innerHTML = '';
+    addInstrRow(); addInstrRow();
+    sourceSelects.forEach(applySourceSelect);
+    photos = [];
+    renderPhotoGrid();
+    renderPrintPhotos();
+  });
+
+  document.getElementById('printBtn').addEventListener('click', function(){
+    window.print();
+  });
+
+  var PDF_PASSWORD_KEY = 'rs-pdf-owner-password';
+  var pdfOwnerPasswordInput = document.getElementById('pdfOwnerPasswordInput');
+  pdfOwnerPasswordInput.value = localStorage.getItem(PDF_PASSWORD_KEY) || '';
+  pdfOwnerPasswordInput.addEventListener('input', function(){
+    localStorage.setItem(PDF_PASSWORD_KEY, pdfOwnerPasswordInput.value);
+  });
+
+  function collectPrintBlocks(){
+    var blocks = [];
+    Array.prototype.forEach.call(form.children, function(el){
+      if (el.classList.contains('print-only-circuits') || el.classList.contains('print-only-photos')){
+        if (getComputedStyle(el).display === 'none') return;
+        var ph = el.querySelector('.print-header'); if (ph) blocks.push(ph);
+        if (el.classList.contains('print-only-circuits')){
+          var cs = el.querySelector('.cert-section'); if (cs) blocks.push(cs);
+        } else {
+          var header = el.querySelector('.cert-section-header'); if (header) blocks.push(header);
+          el.querySelectorAll('.photo-print-item').forEach(function(item){ blocks.push(item); });
+        }
+        var pf = el.querySelector('.print-footer'); if (pf) blocks.push(pf);
+      } else {
+        blocks.push(el);
+      }
+    });
+    return blocks.filter(function(el){
+      return el && getComputedStyle(el).display !== 'none';
+    });
+  }
+
+  function applyForcedPrintStyles(captureWidth){
+    var sheets = [...document.styleSheets];
+    var rules = [];
+    sheets.forEach(function(sheet){
+      try {
+        Array.prototype.forEach.call(sheet.cssRules, function(rule){
+          if (rule.media && Array.prototype.includes.call(rule.media, 'print')) rules.push(rule);
+        });
+      } catch(e){}
+    });
+    var css = rules.map(function(r){
+      return r.cssText.replace(/^@media print\s*{([\s\S]*)}$/, '$1');
+    }).join('\n');
+    var style = document.createElement('style');
+    style.id = 'forcedPrintStyles';
+    style.textContent = css;
+    document.head.appendChild(style);
+
+    document.body.dataset.prevWidth = document.body.style.width;
+    document.body.dataset.prevMaxWidth = document.body.style.maxWidth;
+    document.body.dataset.prevMargin = document.body.style.margin;
+    document.body.style.width = captureWidth + 'px';
+    document.body.style.maxWidth = captureWidth + 'px';
+    document.body.style.margin = '0';
+  }
+
+  function removeForcedPrintStyles(){
+    var el = document.getElementById('forcedPrintStyles');
+    if (el) el.remove();
+    document.body.style.width = document.body.dataset.prevWidth || '';
+    document.body.style.maxWidth = document.body.dataset.prevMaxWidth || '';
+    document.body.style.margin = document.body.dataset.prevMargin || '';
+  }
+
+  function drawWatermarkOnPage(doc, text, pageWidth, pageHeight){
+    if (!text) return;
+    doc.saveGraphicsState();
+    doc.setGState(new doc.GState({opacity: 0.08}));
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.setTextColor(0, 0, 0);
+    for (var gy = 20; gy < pageHeight + 40; gy += 45){
+      for (var gx = -40; gx < pageWidth + 40; gx += 100){
+        doc.text(text, gx, gy, {angle: 30});
+      }
+    }
+    doc.restoreGraphicsState();
+  }
+
+  function captureBodyOnce(scale, captureWidth){
+    return new Promise(function(resolve, reject){
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          html2canvas(document.body, {
+            scale: scale,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            width: captureWidth,
+            windowWidth: captureWidth,
+            height: document.body.scrollHeight,
+            windowHeight: document.body.scrollHeight
+          }).then(resolve).catch(reject);
+        });
+      });
+    });
+  }
+
+  function hasRealContentNearTop(canvas, scale){
+    var sampleHeight = Math.min(canvas.height, Math.round(120 * scale));
+    if (sampleHeight <= 0) return false;
+    var ctx = canvas.getContext('2d');
+    var imgData;
+    try {
+      imgData = ctx.getImageData(0, 0, canvas.width, sampleHeight);
+    } catch(e){
+      return true;
+    }
+    var data = imgData.data;
+    for (var i = 0; i < data.length; i += 4 * 37){
+      var lum = (data[i] + data[i+1] + data[i+2]) / 3;
+      if (lum < 150) return true;
+    }
+    return false;
+  }
+
+  function captureBodyWithRetry(scale, captureWidth, attemptsLeft){
+    var expected = document.body.scrollHeight;
+    return captureBodyOnce(scale, captureWidth).then(function(canvas){
+      var actual = canvas.height / scale;
+      var heightOk = actual >= expected - 15;
+      var contentOk = hasRealContentNearTop(canvas, scale);
+      if ((!heightOk || !contentOk) && attemptsLeft > 0){
+        return captureBodyWithRetry(scale, captureWidth, attemptsLeft - 1);
+      }
+      return canvas;
+    });
+  }
+
+  function generateLockedPdf(){
+    var btn = document.getElementById('lockedPdfBtn');
+    var password = localStorage.getItem(PDF_PASSWORD_KEY) || '';
+    if (!password){
+      alert('Najpierw ustaw hasło zabezpieczające w Sekcji 1 (pole "Hasło zabezpieczające do Zablokowany PDF"), a potem spróbuj ponownie.');
+      pdfOwnerPasswordInput.focus();
+      return;
+    }
+    if (typeof window.jspdf === 'undefined' || typeof window.html2canvas === 'undefined'){
+      alert('Nie udało się wczytać bibliotek do generowania zablokowanego PDF-a. Sprawdź, czy folder "libs" znajduje się obok tego pliku.');
+      return;
+    }
+
+    var originalLabel = btn.textContent;
+    btn.textContent = 'Generowanie… proszę czekać';
+    btn.classList.add('is-disabled');
+
+    var watermarkEl = document.getElementById('printWatermark');
+    var watermarkPrevDisplay = watermarkEl ? watermarkEl.style.display : '';
+
+    var SCALE = 2;
+    var CAPTURE_WIDTH = 1123;
+    var PAGE_HEIGHT_CSS = 780;
+
+    window.dispatchEvent(new Event('beforeprint'));
+    applyForcedPrintStyles(CAPTURE_WIDTH);
+    if (watermarkEl) watermarkEl.style.display = 'none';
+    window.scrollTo(0, 0);
+
+    var pn = form.elements['protocol_number'] ? form.elements['protocol_number'].value : '';
+    var watermarkText = pn ? ('GRID · ' + pn) : 'GRID';
+
+    var blocks = collectPrintBlocks();
+    var blockRects = blocks.map(function(el){
+      var r = el.getBoundingClientRect();
+      return {top: r.top + window.scrollY, bottom: r.bottom + window.scrollY};
+    });
+
+    captureBodyWithRetry(SCALE, CAPTURE_WIDTH, 4).then(function(bigCanvas){
+      removeForcedPrintStyles();
+      if (watermarkEl) watermarkEl.style.display = watermarkPrevDisplay;
+
+      var totalHeight = bigCanvas.height / SCALE;
+      var CUT_MARGIN = 24;
+      var pageRanges = [];
+      var cursor = 0;
+      var prevBottom = 0;
+      blockRects.forEach(function(rect){
+        if (rect.bottom - cursor > PAGE_HEIGHT_CSS){
+          var cut = rect.top - CUT_MARGIN;
+          if (cut > prevBottom && cut > cursor){
+            pageRanges.push({start: cursor, end: cut});
+            cursor = cut;
+          } else if (prevBottom > cursor){
+            pageRanges.push({start: cursor, end: prevBottom});
+            cursor = prevBottom;
+          }
+        }
+        prevBottom = rect.bottom;
+      });
+      pageRanges.push({start: cursor, end: totalHeight});
+      pageRanges = pageRanges.filter(function(r){ return r.end - r.start > 1; });
+      if (!pageRanges.length) pageRanges.push({start: 0, end: totalHeight});
+
+      var jsPDF = window.jspdf.jsPDF;
+      var doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+        encryption: {
+          userPassword: '',
+          ownerPassword: password,
+          userPermissions: ['print']
+        }
+      });
+
+      var pageWidthMM = doc.internal.pageSize.getWidth();
+      var pageHeightMM = doc.internal.pageSize.getHeight();
+      var marginMM = 6;
+      var usableWidthMM = pageWidthMM - marginMM * 2;
+
+      pageRanges.forEach(function(range, idx){
+        if (idx > 0) doc.addPage('a4', 'landscape');
+        var sliceHeightCss = range.end - range.start;
+        var sliceCanvas = document.createElement('canvas');
+        sliceCanvas.width = bigCanvas.width;
+        sliceCanvas.height = Math.max(1, Math.floor(sliceHeightCss * SCALE));
+        var ctx = sliceCanvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+        ctx.drawImage(bigCanvas, 0, range.start * SCALE, bigCanvas.width, sliceCanvas.height, 0, 0, sliceCanvas.width, sliceCanvas.height);
+        var imgData = sliceCanvas.toDataURL('image/jpeg', 0.92);
+        var imgHeightMM = usableWidthMM * (sliceCanvas.height / sliceCanvas.width);
+        doc.addImage(imgData, 'JPEG', marginMM, marginMM, usableWidthMM, imgHeightMM);
+        drawWatermarkOnPage(doc, watermarkText, pageWidthMM, pageHeightMM);
+      });
+
+      var safeName = (pn || 'protokol').replace(/[\\/:*?"<>|]+/g, '-');
+      doc.save('Protokol-' + safeName + '-zablokowany.pdf');
+
+      btn.textContent = originalLabel;
+      btn.classList.remove('is-disabled');
+    }).catch(function(err){
+      removeForcedPrintStyles();
+      if (watermarkEl) watermarkEl.style.display = watermarkPrevDisplay;
+      console.error(err);
+      alert('Nie udało się wygenerować zablokowanego PDF-a. Spróbuj ponownie albo użyj zwykłego drukowania.');
+      btn.textContent = originalLabel;
+      btn.classList.remove('is-disabled');
+    });
+  }
+
+  document.getElementById('lockedPdfBtn').addEventListener('click', generateLockedPdf);
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth-guard.js"></script>
+</body>
+</html>

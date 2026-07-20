@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oświadczenie o Gotowości do Przyłączenia | Protokoły Pomiarowe Grid</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .action-bar{
+    position:sticky;
+    top:65px;
+    z-index:40;
+    background:rgba(255,255,255,0.95);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .action-bar-wrap{
+    max-width:980px;
+    margin:0 auto;
+    padding:14px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .action-bar h1{
+    font-size:16px;
+    font-weight:700;
+  }
+  .action-bar .subtitle{
+    font-size:12px;
+    color:var(--text-muted);
+    margin-top:2px;
+  }
+  .action-bar .back{
+    font-size:13px;
+    color:var(--text-muted);
+    text-decoration:none;
+    display:block;
+    margin-bottom:2px;
+  }
+  .action-bar .back:hover{color:var(--red);}
+  .action-buttons{display:flex; gap:10px; flex-wrap:wrap;}
+  .btn-sm{padding:8px 14px; font-size:13px; border-radius:7px;}
+
+  .save-status{
+    max-width:980px;
+    margin:14px auto 0;
+    padding:0 24px;
+  }
+  .save-status .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:var(--text-muted);
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    padding:6px 14px;
+    border-radius:999px;
+  }
+  .save-status .dot{width:7px;height:7px;border-radius:50%;background:#2ea043;}
+
+  main{
+    position:relative;
+    z-index:1;
+    max-width:980px;
+    margin:0 auto;
+    padding:24px 24px 100px;
+  }
+
+  .cert-section{
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    margin-bottom:24px;
+    background:var(--bg);
+  }
+  .cert-section-header{
+    background:linear-gradient(135deg, var(--red), var(--red-600));
+    color:#fff;
+    padding:12px 20px;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:0.3px;
+  }
+  .cert-section-header .num{
+    display:inline-block;
+    background:rgba(255,255,255,0.2);
+    border-radius:5px;
+    padding:1px 8px;
+    margin-right:8px;
+    font-size:12px;
+  }
+  .cert-section-sub{
+    padding:14px 20px 0;
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    color:var(--red);
+  }
+  .cert-section-body{
+    padding:16px 20px 22px;
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:16px;
+  }
+  .cert-section-body.cols-2{grid-template-columns:repeat(2, 1fr);}
+  .cert-section-body.cols-1{grid-template-columns:1fr;}
+  @media(max-width:700px){
+    .cert-section-body, .cert-section-body.cols-2{grid-template-columns:1fr;}
+  }
+
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field.span-2{grid-column:span 2;}
+  .field.span-3{grid-column:span 3;}
+  @media(max-width:700px){ .field.span-2, .field.span-3{grid-column:span 1;} }
+
+  .field label{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text-muted);
+  }
+  .field input[type=text],
+  .field input[type=date],
+  .field input[type=number],
+  .field select,
+  .field textarea{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:9px 11px;
+    font-size:14px;
+    font-family:inherit;
+    color:var(--text-main);
+    background:#fff;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .field textarea{resize:vertical; min-height:64px;}
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus{
+    outline:none;
+    border-color:var(--red);
+    box-shadow:0 0 0 3px rgba(200,16,46,0.12);
+  }
+
+  .checkbox-line{display:flex; align-items:flex-start; gap:8px; font-size:13.5px; line-height:1.4;}
+  .checkbox-line input{width:16px; height:16px; accent-color:var(--red); margin-top:2px; flex-shrink:0;}
+
+  .checkbox-grid{display:flex; flex-wrap:wrap; gap:14px 24px;}
+
+  .declaration-text{
+    font-size:13px;
+    line-height:1.55;
+    color:var(--text-main);
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px 16px;
+  }
+
+  .hint{
+    font-size:12px;
+    color:var(--text-muted);
+    margin-top:2px;
+  }
+
+  .logo-upload{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .logo-preview{
+    width:170px; height:80px;
+    border:2px dashed var(--line);
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+    background:var(--bg-soft);
+    cursor:pointer;
+    padding:8px;
+    text-align:center;
+    transition:border-color .15s ease;
+  }
+  .logo-preview:hover{border-color:var(--red);}
+  .logo-preview .logo-placeholder{font-size:11px; color:var(--text-muted);}
+  .logo-preview img{max-width:100%; max-height:100%; object-fit:contain;}
+  .logo-actions{display:flex; gap:8px;}
+
+  .logo-mode-switch{display:flex; gap:16px; margin-bottom:10px; font-size:13px; color:var(--text-main);}
+  .logo-mode-switch label{display:inline-flex; align-items:center; gap:6px; cursor:pointer;}
+  .logo-mode-switch input{accent-color:var(--red);}
+  .logo-mode-panel input#companyNameInput{
+    max-width:360px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:9px 11px;
+    font-size:14px;
+    font-family:inherit;
+  }
+
+  .sketch-toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:14px;
+    padding-bottom:12px;
+  }
+  .sketch-colors, .sketch-widths{display:flex; align-items:center; gap:6px;}
+  .sketch-color-btn{
+    width:26px; height:26px;
+    border-radius:50%;
+    border:2px solid var(--line);
+    cursor:pointer;
+    padding:0;
+  }
+  .sketch-color-btn.active{border-color:var(--text-main); box-shadow:0 0 0 2px rgba(0,0,0,0.08);}
+  .sketch-width-btn{
+    border:1px solid var(--line);
+    border-radius:7px;
+    background:#fff;
+    padding:6px 12px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text-main);
+    cursor:pointer;
+  }
+  .sketch-width-btn.active{background:var(--red); border-color:var(--red); color:#fff;}
+  .sketch-tools{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+  .sketch-tool-btn{
+    border:1px solid var(--line);
+    border-radius:7px;
+    background:#fff;
+    padding:6px 12px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text-main);
+    cursor:pointer;
+  }
+  .sketch-tool-btn.active{background:var(--text-main); border-color:var(--text-main); color:#fff;}
+  .sketch-canvas-wrap{
+    position:relative;
+    border:2px dashed var(--line);
+    border-radius:8px;
+    background:#fff;
+    overflow:hidden;
+    touch-action:none;
+  }
+  .sketch-canvas-wrap canvas{width:100%; height:auto; display:block; cursor:crosshair;}
+  .sketch-print-wrap{padding:10px 16px 16px;}
+  .sketch-print-wrap img{width:100%; border:1px solid #ccc; border-radius:4px;}
+
+  .photo-paste-zone{
+    min-height:64px;
+    border:2px dashed var(--line);
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    padding:14px;
+    cursor:pointer;
+    background:var(--bg-soft);
+    font-size:12.5px;
+    color:var(--text-muted);
+    transition:border-color .15s ease;
+    margin-bottom:14px;
+  }
+  .photo-paste-zone:hover, .photo-paste-zone:focus{border-color:var(--red); outline:none;}
+  .photo-grid{display:flex; flex-wrap:wrap; gap:14px;}
+  .photo-item{
+    width:170px;
+    display:flex; flex-direction:column; gap:6px;
+    position:relative;
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:8px;
+  }
+  .photo-thumb{
+    width:100%; height:110px;
+    border-radius:6px;
+    overflow:hidden;
+    background:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .photo-thumb img{width:100%; height:100%; object-fit:cover;}
+  .photo-caption{
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:6px 8px;
+    font-size:12px;
+    font-family:inherit;
+  }
+  .photo-remove{
+    position:absolute; top:-8px; right:-8px;
+    width:24px; height:24px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--red);
+    font-size:14px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    line-height:1;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+  }
+
+  .rs-table-wrap{padding:16px 20px 20px;}
+
+  .print-header{display:none;}
+  .print-header-company-name{display:none;}
+  .print-footer{display:none;}
+  .print-only-photos{display:none;}
+  .print-only-sketch{display:none;}
+
+  .sign-note{
+    margin:0 20px 18px;
+    padding:10px 14px;
+    background:rgba(200,16,46,0.06);
+    border:1px solid rgba(200,16,46,0.25);
+    border-radius:8px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--red-700);
+  }
+
+  .field input.is-linked{
+    background:var(--bg-soft);
+    color:var(--text-muted);
+    cursor:not-allowed;
+  }
+
+  @page{
+    size:landscape;
+  }
+  .watermark-overlay{display:none;}
+  @media print{
+    header, .action-bar, .save-status, .circuit-bg, footer{display:none !important;}
+    body{padding:0; font-size:11px;}
+    main{padding:8px 6px 0; max-width:100%;}
+    .cert-section{break-inside:avoid; border-color:#ccc; margin-bottom:3px; border-radius:5px;}
+    .cert-section-header{
+      padding:3px 8px; font-size:10px;
+      background:none !important;
+      color:#000 !important;
+      font-weight:700;
+      border-bottom:2px solid #000;
+    }
+    .cert-section-header .num{
+      padding:0 4px;
+      background:none !important;
+      color:#000 !important;
+      border:1px solid #000;
+    }
+    .cert-section-sub{padding:3px 8px 0; font-size:8px;}
+    .cert-section-body{padding:3px 8px 4px; gap:2px 8px;}
+    .cert-section-body,
+    .cert-section-body.cols-2{grid-template-columns:repeat(4, 1fr);}
+    .field{gap:1px;}
+    .field label{font-size:8px;}
+    .field input[type=text], .field input[type=date], .field input[type=number], .field select, .field textarea{
+      padding:2px 4px; font-size:9px; border-color:#999;
+    }
+    .field textarea{min-height:16px;}
+    .field:has(textarea),
+    .field:has(.checkbox-grid),
+    .field:has(.declaration-text),
+    .field:has(.logo-mode-switch){grid-column:1 / -1 !important;}
+    .checkbox-line{font-size:9px; gap:4px;}
+    .checkbox-line input{width:10px; height:10px;}
+    .checkbox-grid{gap:3px 12px;}
+    .declaration-text{font-size:8.5px; padding:6px 8px;}
+    .sign-note{margin:0 8px 5px; padding:4px 7px; font-size:8px;}
+    .hint{font-size:7px; padding-bottom:4px;}
+    .rs-table-wrap{padding:5px 10px 8px;}
+    .logo-field{display:none !important;}
+    .pdf-password-field{display:none !important;}
+    .photo-manage{display:none !important;}
+    .sketch-manage{display:none !important;}
+    .print-header{
+      display:flex;
+      align-items:center;
+      gap:24px;
+      padding:0 0 10px;
+      margin-bottom:8px;
+      border-bottom:3px solid #000;
+      break-inside:avoid;
+      break-after:avoid;
+    }
+    .print-header img{max-height:120px; max-width:400px; object-fit:contain;}
+    .print-header-company-name{
+      font-size:26px;
+      font-weight:800;
+      color:#000;
+      max-width:400px;
+      line-height:1.15;
+    }
+    .print-header-text{flex:1; text-align:right;}
+    .print-header-topline{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:9px;
+      font-weight:600;
+      color:#000;
+      border:1px solid #000;
+      border-radius:4px;
+      padding:3px 9px;
+      margin-bottom:6px;
+    }
+    .print-header h2{font-size:19px; font-weight:800; color:var(--red); margin:0; text-align:right;}
+    .print-header-subtitle{font-size:11px; font-weight:600; color:#000; margin-top:3px; font-style:italic;}
+    .print-footer{
+      display:block;
+      text-align:center;
+      font-size:8px;
+      color:#555;
+      padding-top:6px;
+      margin-top:6px;
+      border-top:1px solid #ccc;
+      break-before:avoid;
+    }
+    .print-only-photos{
+      display:block;
+      break-before:page;
+    }
+    .photo-print-grid{
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:10px;
+      padding:6px 8px 10px;
+    }
+    .photo-print-item{
+      break-inside:avoid;
+      border:1px solid #ccc;
+      border-radius:5px;
+      padding:6px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .photo-print-item img{
+      width:100%;
+      max-height:230px;
+      object-fit:contain;
+      border-radius:3px;
+    }
+    .photo-print-item .cap{
+      font-size:8px;
+      color:#000;
+      text-align:center;
+    }
+    .print-only-sketch{
+      display:block;
+      break-before:page;
+    }
+    .sketch-print-wrap{padding:6px 8px 10px;}
+    .sketch-print-wrap img{
+      width:100%;
+      border:1px solid #ccc;
+      border-radius:3px;
+    }
+    .watermark-overlay{
+      display:block;
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      pointer-events:none;
+      background-repeat:repeat;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
+  }
+</style>
+</head>
+<body data-protocol-id="certyfikat-5">
+
+<div class="circuit-bg"></div>
+<div class="watermark-overlay" id="printWatermark"></div>
+
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo">
+      <div class="bolt">
+        <svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+      </div>
+      <div>Protokoły Pomiarowe <span class="rs">Grid</span></div>
+    </a>
+    <div class="auth-buttons">
+      <a href="#" class="btn btn-outline">Zaloguj się</a>
+      <a href="#" class="btn btn-solid">Zarejestruj się</a>
+    </div>
+  </div>
+</header>
+
+<div class="action-bar">
+  <div class="action-bar-wrap">
+    <div>
+      <a href="index.html" class="back">← Strona główna</a>
+      <h1>Oświadczenie o Gotowości do Przyłączenia</h1>
+      <p class="subtitle">Zgłoszenie instalacji odbiorczej gotowej do przyłączenia do sieci elektroenergetycznej (OSD)</p>
+    </div>
+    <div class="action-buttons">
+      <button type="button" class="btn btn-outline btn-sm" id="clearBtn">Wyczyść formularz</button>
+      <button type="button" class="btn btn-solid btn-sm" id="printBtn">Drukuj / Zapisz jako PDF</button>
+      <button type="button" class="btn btn-outline btn-sm is-disabled" title="Dostępne po uruchomieniu kont i wysyłki e-mail">Wyślij mailem</button>
+      <button type="button" class="btn btn-outline btn-sm" id="lockedPdfBtn">Zablokowany PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="save-status">
+  <span class="pill"><span class="dot"></span> Wpisywane dane zapisują się automatycznie w tej przeglądarce (na razie lokalnie, bez konta)</span>
+</div>
+
+<main>
+
+<form id="certForm">
+
+  <!-- SECTION 1 -->
+  <div class="print-header">
+    <img class="print-header-logo" alt="Logo firmy" style="display:none;">
+    <div class="print-header-company-name" style="display:none;"></div>
+    <div class="print-header-text">
+      <div class="print-header-topline">
+        <span class="print-header-number"></span>
+      </div>
+      <h2>Oświadczenie o Gotowości do Przyłączenia</h2>
+      <p class="print-header-subtitle">Zgłoszenie instalacji odbiorczej gotowej do przyłączenia do sieci elektroenergetycznej (OSD)</p>
+    </div>
+  </div>
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">1</span>Dane wykonawcy, zleceniodawcy i instalacji</div>
+
+    <div class="cert-section-body cols-2">
+      <div class="field"><label>Numer protokołu</label><input type="text" name="protocol_number" placeholder="np. GRID/2026/001"></div>
+      <div class="field"><label>Data wystawienia</label><input type="date" name="protocol_date"></div>
+      <div class="field"><label>Operator sieci (OSD)</label><input type="text" name="grid_operator" placeholder="np. PGE Dystrybucja, Tauron, Enea, Energa"></div>
+    </div>
+
+    <div class="cert-section-body cols-1 logo-field">
+      <div class="field">
+        <label>Logo / nazwa firmy (pojawi się na wydruku)</label>
+        <div class="logo-mode-switch">
+          <label><input type="radio" name="logo_mode" id="logoModeTextRadio" value="text" checked> Wpisz nazwę</label>
+          <label><input type="radio" name="logo_mode" id="logoModeImageRadio" value="image"> Wklej / wgraj logo</label>
+        </div>
+        <div class="logo-mode-panel" id="logoModeTextPanel">
+          <input type="text" id="companyNameInput" placeholder="np. Elektro-Serwis Jan Kowalski">
+        </div>
+        <div class="logo-mode-panel" id="logoModeImagePanel" style="display:none;">
+          <div class="logo-upload">
+            <div class="logo-preview" id="logoPreview">
+              <span class="logo-placeholder">Kliknij, aby dodać plik, albo wklej obraz (Ctrl+V)</span>
+              <img id="logoImg" style="display:none;">
+            </div>
+            <input type="file" accept="image/*" id="logoFileInput" style="display:none;">
+            <div class="logo-actions">
+              <button type="button" class="btn btn-outline btn-sm" id="logoChooseBtn">Wybierz plik</button>
+              <button type="button" class="btn btn-outline btn-sm" id="logoRemoveBtn">Usuń logo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cert-section-body cols-1 pdf-password-field">
+      <div class="field">
+        <label>Hasło zabezpieczające do "Zablokowany PDF"</label>
+        <input type="password" id="pdfOwnerPasswordInput" placeholder="Ustaw raz — będzie używane przy każdym eksporcie zablokowanego PDF-a" autocomplete="off">
+        <p class="hint">To hasło NIE jest wymagane do otwarcia pliku — chroni tylko przed edycją i kopiowaniem treści. Wspólne dla wszystkich protokołów, zapisywane lokalnie w tej przeglądarce.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">2</span>I. Dane obiektu przyłączanego</div>
+    <div class="cert-section-body cols-2">
+      <div class="field span-2"><label>Nazwa obiektu</label><input type="text" name="site_name" placeholder="np. Budynek mieszkalny jednorodzinny"></div>
+      <div class="field"><label>Województwo</label><input type="text" name="site_voivodeship"></div>
+      <div class="field"><label>Powiat</label><input type="text" name="site_county"></div>
+      <div class="field"><label>Gmina</label><input type="text" name="site_commune"></div>
+      <div class="field"><label>Miejscowość</label><input type="text" name="site_city"></div>
+      <div class="field"><label>Ulica</label><input type="text" name="site_street"></div>
+      <div class="field"><label>Nr domu</label><input type="text" name="site_house_no"></div>
+      <div class="field"><label>Nr lokalu</label><input type="text" name="site_flat_no"></div>
+      <div class="field"><label>Kod pocztowy</label><input type="text" name="site_postcode"></div>
+      <div class="field"><label>Poczta</label><input type="text" name="site_post_city"></div>
+      <div class="field span-2"><label>Numery działek</label><input type="text" name="site_plot_numbers"></div>
+      <div class="field"><label>Numer sprawy (OSD)</label><input type="text" name="case_number"></div>
+      <div class="field"><label>Numer PPE <span style="font-weight:400;">(jeśli dotyczy zmiany parametrów istniejącego PPE)</span></label><input type="text" name="ppe_number"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">3</span>II. Adres do korespondencji</div>
+    <div class="cert-section-body cols-2">
+      <div class="field span-2"><label>Imię i nazwisko / Firma</label><input type="text" name="corr_name"></div>
+      <div class="field"><label>Nr telefonu</label><input type="text" name="corr_phone"></div>
+      <div class="field"><label>E-mail</label><input type="text" name="corr_email"></div>
+      <div class="field"><label>Województwo</label><input type="text" name="corr_voivodeship"></div>
+      <div class="field"><label>Powiat</label><input type="text" name="corr_county"></div>
+      <div class="field"><label>Gmina</label><input type="text" name="corr_commune"></div>
+      <div class="field"><label>Miejscowość</label><input type="text" name="corr_city"></div>
+      <div class="field"><label>Ulica</label><input type="text" name="corr_street"></div>
+      <div class="field"><label>Nr domu</label><input type="text" name="corr_house_no"></div>
+      <div class="field"><label>Nr lokalu</label><input type="text" name="corr_flat_no"></div>
+      <div class="field"><label>Kod pocztowy</label><input type="text" name="corr_postcode"></div>
+      <div class="field"><label>Poczta</label><input type="text" name="corr_post_city"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">4</span>III. Dane wykonawcy</div>
+    <div class="cert-section-body cols-2">
+      <div class="field span-2"><label>Nazwa firmy / imię i nazwisko instalatora</label><input type="text" name="installer_full_name"></div>
+      <div class="field span-2"><label>Adres</label><input type="text" name="installer_address"></div>
+      <div class="field"><label>NIP</label><input type="text" name="installer_nip"></div>
+      <div class="field"><label>Nr telefonu</label><input type="text" name="installer_phone"></div>
+      <div class="field"><label>E-mail</label><input type="text" name="installer_email"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">5</span>IV. Oświadczenie wykonawcy</div>
+    <div class="cert-section-body cols-2">
+      <div class="field span-2">
+        <p class="declaration-text">Oświadczam, że: 1) instalację elektryczną i ochronną oraz układ pomiarowo-rozliczeniowy / miejsce zainstalowania układu pomiarowo-rozliczeniowego w obiekcie (nieruchomości) wykonałem zgodnie z normami i przepisami oraz warunkami przyłączenia, za co przyjmuję całkowitą odpowiedzialność. 2) Protokoły pomiarów rezystancji izolacji, skuteczności ochrony przeciwporażeniowej oraz skuteczności ochrony odgromowej z wynikami pozytywnymi oraz schemat instalacji elektrycznej pozostawiłem Odbiorcy. 3) Posiadam kwalifikacje do wykonania powyższych robót.</p>
+      </div>
+      <div class="field"><label>Czytelny podpis wykonawcy</label><input type="text" name="installer_declaration_signature" placeholder="imię i nazwisko jako podpis"></div>
+      <div class="field"><label>Data</label><input type="date" name="installer_declaration_date"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">6</span>V. Klauzula informacyjna RODO</div>
+    <div class="cert-section-body cols-1">
+      <div class="field">
+        <label class="checkbox-line"><input type="checkbox" name="rodo_clause_received"> Oświadczam, że otrzymałem Klauzulę informacyjną w zakresie przetwarzania danych osobowych (dotyczy osób fizycznych, w tym prowadzących jednoosobową działalność gospodarczą, w formie spółki cywilnej, jak i pełnomocników i reprezentantów Podmiotu Przyłączanego).</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">7</span>VI. Oświadczenie podmiotu przyłączanego</div>
+    <div class="cert-section-body cols-2">
+      <div class="field span-2">
+        <p class="declaration-text">Oświadczam, że: 1) informacje zawarte w tym dokumencie są zgodne ze stanem faktycznym. 2) Posiadam tytuł prawny do obiektu / nieruchomości. 3) Powyższa instalacja elektryczna i ochronna oraz układ pomiarowo-rozliczeniowy / miejsce zainstalowania układu pomiarowo-rozliczeniowego zostały przygotowane / wykonane przez osobę posiadającą kwalifikacje do tego typu robót oraz zostały odebrane przez osobę posiadającą uprawnienia do sprawowania samodzielnych funkcji w budownictwie w wymaganym zakresie, a odbiór został potwierdzony protokołem odbioru bez zastrzeżeń. 4) Jestem w posiadaniu protokołów pomiarów rezystancji izolacji, skuteczności ochrony przeciwporażeniowej oraz skuteczności ochrony odgromowej z wynikami pozytywnymi, schematu instalacji elektrycznej oraz atestów, certyfikatów i innych dokumentów niezbędnych dla prawidłowego wykonania oraz eksploatacji powyższej instalacji. 5) Jeśli przyłączenie dotyczy IV, V i VI grupy przyłączeniowej na napięciu nN, niniejsze oświadczenie stanowi jednocześnie zgłoszenie do sprawdzenia przed załączeniem.</p>
+      </div>
+      <div class="field span-2">
+        <label class="checkbox-line"><input type="checkbox" name="tariff_g_eligible"> Obiekt spełnia kryteria kwalifikowania odbiorców do grup taryfowych G</label>
+      </div>
+      <div class="field"><label>Rodzaj obiektu (jeśli dotyczy taryfy G)</label><input type="text" name="tariff_g_object_type" placeholder="np. gospodarstwo domowe"></div>
+      <div class="field">
+        <label class="checkbox-line"><input type="checkbox" name="tariff_g_no_business"> Nie jest w nim prowadzona działalność gospodarcza</label>
+      </div>
+      <div class="field span-2">
+        <label class="checkbox-line"><input type="checkbox" name="tariff_g_not_under_construction"> Nie jest w trakcie budowy</label>
+      </div>
+      <div class="field"><label>Czytelny podpis podmiotu przyłączanego</label><input type="text" name="client_declaration_signature" placeholder="imię i nazwisko jako podpis"></div>
+      <div class="field"><label>Data</label><input type="date" name="client_declaration_date"></div>
+    </div>
+    <p class="sign-note">⚠ Oświadczenie jest ważne wyłącznie po podpisaniu przez wykonawcę (Sekcja IV) i podmiot przyłączany (Sekcja VI).</p>
+  </div>
+
+  <!-- SECTION 8 -->
+  <div class="cert-section">
+    <div class="cert-section-header"><span class="num">8</span>VII. Załączniki</div>
+    <div class="cert-section-body cols-1">
+      <div class="field">
+        <label>Wymagany załącznik</label>
+        <label class="checkbox-line"><input type="checkbox" name="attach_schematic_required"> Schemat instalacji elektrycznej obiektu przedstawiający sposób podłączenia od miejsca rozgraniczenia własności z operatorem sieci (OSD); układ połączeń powinien uwzględniać układ pomiarowo-rozliczeniowy energii elektrycznej.</label>
+      </div>
+      <div class="field">
+        <label>Załączniki opcjonalne</label>
+        <div class="checkbox-grid" style="flex-direction:column; align-items:flex-start; gap:10px;">
+          <label class="checkbox-line"><input type="checkbox" name="attach_address_list"> Załącznik adresowy określający adresy wszystkich przyłączanych obiektów (dotyczy przyłączenia wielu obiektów / budynków wielolokalowych).</label>
+          <label class="checkbox-line"><input type="checkbox" name="attach_power_of_attorney"> Pełnomocnictwo (wymagane, jeśli Podmiot Przyłączany reprezentowany jest przez pełnomocnika).</label>
+        </div>
+      </div>
+      <p class="hint">Uzupełnij oświadczenie kompletnie — OSD może wezwać do usunięcia braków formalnych w terminie 30 dni. Jeśli w obiekcie zgłaszana jest też mikroinstalacja PV, schemat poniżej powinien ją uwzględniać (osobne zgłoszenie mikroinstalacji składa się dopiero po zakończeniu procesu przyłączenia obiektu).</p>
+    </div>
+
+    <div class="cert-section-sub">Schemat instalacji elektrycznej (rysunek)</div>
+    <div class="rs-table-wrap sketch-manage">
+      <p class="hint" style="padding:0 0 10px;">Narysuj prosty schemat: miejsce rozgraniczenia własności z OSD, układ pomiarowo-rozliczeniowy (licznik), zabezpieczenia, instalację odbiorczą. Zostanie wydrukowany jako załącznik do oświadczenia. Ołówek rysuje odręcznie, Strzałka i Tekst w ramce tworzą elementy, które można potem przesunąć/zmienić narzędziem Przesuń (przeciągnij za uchwyt, aby obrócić strzałkę lub zmienić rozmiar ramki; dwuklik na ramce edytuje tekst).</p>
+      <div class="sketch-toolbar">
+        <div class="sketch-tools">
+          <button type="button" class="sketch-tool-btn active" data-tool="pen">Ołówek</button>
+          <button type="button" class="sketch-tool-btn" data-tool="arrow">Strzałka</button>
+          <button type="button" class="sketch-tool-btn" data-tool="textbox">Tekst w ramce</button>
+          <button type="button" class="sketch-tool-btn" data-tool="move">Przesuń / zaznacz</button>
+        </div>
+        <div class="sketch-colors">
+          <button type="button" class="sketch-color-btn active" data-color="#181818" style="background:#181818" title="Czarny"></button>
+          <button type="button" class="sketch-color-btn" data-color="#c8102e" style="background:#c8102e" title="Czerwony"></button>
+          <button type="button" class="sketch-color-btn" data-color="#1a56db" style="background:#1a56db" title="Niebieski"></button>
+        </div>
+        <div class="sketch-widths">
+          <button type="button" class="sketch-width-btn active" data-width="2">Cienka</button>
+          <button type="button" class="sketch-width-btn" data-width="4">Średnia</button>
+          <button type="button" class="sketch-width-btn" data-width="7">Gruba</button>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" id="sketchDeleteBtn">Usuń zaznaczone</button>
+        <button type="button" class="btn btn-outline btn-sm" id="sketchUndoBtn">Cofnij</button>
+        <button type="button" class="btn btn-outline btn-sm" id="sketchClearBtn">Wyczyść</button>
+      </div>
+      <div class="sketch-canvas-wrap">
+        <canvas id="sketchCanvas" width="1000" height="560"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 9 -->
+  <div class="cert-section photo-manage">
+    <div class="cert-section-header"><span class="num">9</span>Dokumentacja fotograficzna</div>
+    <div class="rs-table-wrap">
+      <p class="hint" style="padding:0 0 10px;">Dodaj zdjęcia (np. miejsce przyłączenia, układ pomiarowo-rozliczeniowy, tabliczki znamionowe). Zostaną wydrukowane na ostatnich stronach dokumentu.</p>
+      <div class="photo-paste-zone" id="photoPasteZone" tabindex="0">
+        <span>Kliknij, aby dodać zdjęcia, albo wklej ze schowka (Ctrl+V)</span>
+      </div>
+      <input type="file" accept="image/*" multiple id="photoFileInput" style="display:none;">
+      <div class="photo-grid" id="photoGrid"></div>
+    </div>
+  </div>
+
+  <div class="print-footer">&copy; GRID RS 2026 &middot; Wszelkie prawa zastrzeżone</div>
+
+  <div class="print-only-photos" id="printOnlyPhotos">
+    <div class="print-header">
+      <img class="print-header-logo" alt="Logo firmy" style="display:none;">
+      <div class="print-header-company-name" style="display:none;"></div>
+      <div class="print-header-text">
+        <div class="print-header-topline">
+          <span class="print-header-number"></span>
+        </div>
+        <h2>Oświadczenie o Gotowości do Przyłączenia</h2>
+        <p class="print-header-subtitle">Zgłoszenie instalacji odbiorczej gotowej do przyłączenia do sieci elektroenergetycznej (OSD)</p>
+      </div>
+    </div>
+    <div class="cert-section">
+      <div class="cert-section-header">Załącznik &middot; Dokumentacja fotograficzna</div>
+      <div class="photo-print-grid" id="printPhotoGrid"></div>
+    </div>
+    <div class="print-footer">&copy; GRID RS 2026 &middot; Wszelkie prawa zastrzeżone</div>
+  </div>
+
+  <div class="print-only-sketch" id="printOnlySketch">
+    <div class="print-header">
+      <img class="print-header-logo" alt="Logo firmy" style="display:none;">
+      <div class="print-header-company-name" style="display:none;"></div>
+      <div class="print-header-text">
+        <div class="print-header-topline">
+          <span class="print-header-number"></span>
+        </div>
+        <h2>Oświadczenie o Gotowości do Przyłączenia</h2>
+        <p class="print-header-subtitle">Zgłoszenie instalacji odbiorczej gotowej do przyłączenia do sieci elektroenergetycznej (OSD)</p>
+      </div>
+    </div>
+    <div class="cert-section">
+      <div class="cert-section-header">Załącznik &middot; Schemat instalacji elektrycznej</div>
+      <div class="sketch-print-wrap"><img id="printSketchImg" alt=""></div>
+    </div>
+    <div class="print-footer">&copy; GRID RS 2026 &middot; Wszelkie prawa zastrzeżone</div>
+  </div>
+
+</form>
+</main>
+
+<footer>
+  &copy; 2026 Protokoły Pomiarowe Grid. Wszystkie prawa zastrzeżone.
+</footer>
+
+<script src="libs/jspdf.umd.min.js"></script>
+<script src="libs/html2canvas.min.js"></script>
+<script>
+(function(){
+  var form = document.getElementById('certForm');
+  var STORAGE_KEY = 'rs-certyfikat-5';
+
+  function escapeXml(s){
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function buildWatermark(){
+    var pn = form.elements['protocol_number'] ? form.elements['protocol_number'].value : '';
+    var text = pn ? ('GRID · ' + pn) : 'GRID';
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180">' +
+      '<text x="160" y="95" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="rgba(0,0,0,0.07)" text-anchor="middle" transform="rotate(-30 160 95)">' + escapeXml(text) + '</text>' +
+      '</svg>';
+    var url = 'data:image/svg+xml,' + encodeURIComponent(svg);
+    var el = document.getElementById('printWatermark');
+    if (el) el.style.backgroundImage = 'url("' + url + '")';
+  }
+
+  buildWatermark();
+  window.addEventListener('beforeprint', buildWatermark);
+
+  var LOGO_KEY = 'rs-company-logo';
+  var NAME_KEY = 'rs-company-name';
+  var MODE_KEY = 'rs-company-logo-mode';
+  var logoPreview = document.getElementById('logoPreview');
+  var logoImg = document.getElementById('logoImg');
+  var logoPlaceholder = logoPreview.querySelector('.logo-placeholder');
+  var logoFileInput = document.getElementById('logoFileInput');
+  var printHeaderLogos = document.querySelectorAll('.print-header-logo');
+  var printHeaderCompanyNames = document.querySelectorAll('.print-header-company-name');
+  var companyNameInput = document.getElementById('companyNameInput');
+  var logoModeTextRadio = document.getElementById('logoModeTextRadio');
+  var logoModeImageRadio = document.getElementById('logoModeImageRadio');
+  var logoModeTextPanel = document.getElementById('logoModeTextPanel');
+  var logoModeImagePanel = document.getElementById('logoModeImagePanel');
+
+  function updatePrintBrand(){
+    var mode = localStorage.getItem(MODE_KEY) || 'text';
+    if (mode === 'image'){
+      var logoData = localStorage.getItem(LOGO_KEY);
+      printHeaderLogos.forEach(function(el){
+        if (logoData){ el.src = logoData; el.style.display = 'block'; }
+        else { el.style.display = 'none'; }
+      });
+      printHeaderCompanyNames.forEach(function(el){ el.style.display = 'none'; });
+    } else {
+      var name = localStorage.getItem(NAME_KEY) || '';
+      printHeaderCompanyNames.forEach(function(el){
+        if (name){ el.textContent = name; el.style.display = 'block'; }
+        else { el.style.display = 'none'; }
+      });
+      printHeaderLogos.forEach(function(el){ el.style.display = 'none'; });
+    }
+  }
+
+  function applyMode(mode){
+    localStorage.setItem(MODE_KEY, mode);
+    logoModeTextPanel.style.display = (mode === 'image') ? 'none' : 'block';
+    logoModeImagePanel.style.display = (mode === 'image') ? 'block' : 'none';
+    updatePrintBrand();
+  }
+
+  function setLogo(dataUrl){
+    if (dataUrl){
+      logoImg.src = dataUrl;
+      logoImg.style.display = 'block';
+      logoPlaceholder.style.display = 'none';
+      localStorage.setItem(LOGO_KEY, dataUrl);
+    } else {
+      logoImg.removeAttribute('src');
+      logoImg.style.display = 'none';
+      logoPlaceholder.style.display = 'block';
+      localStorage.removeItem(LOGO_KEY);
+    }
+    updatePrintBrand();
+  }
+
+  function readFileAsDataUrl(file, cb){
+    var reader = new FileReader();
+    reader.onload = function(e){ cb(e.target.result); };
+    reader.readAsDataURL(file);
+  }
+
+  logoPreview.addEventListener('click', function(){ logoFileInput.click(); });
+  document.getElementById('logoChooseBtn').addEventListener('click', function(){ logoFileInput.click(); });
+  logoFileInput.addEventListener('change', function(){
+    if (logoFileInput.files && logoFileInput.files[0]) readFileAsDataUrl(logoFileInput.files[0], setLogo);
+  });
+  document.getElementById('logoRemoveBtn').addEventListener('click', function(){
+    setLogo(null);
+    logoFileInput.value = '';
+  });
+  document.addEventListener('paste', function(e){
+    if ((localStorage.getItem(MODE_KEY) || 'text') !== 'image') return;
+    var items = (e.clipboardData || window.clipboardData).items;
+    if (!items) return;
+    for (var i = 0; i < items.length; i++){
+      if (items[i].type.indexOf('image') !== -1){
+        var file = items[i].getAsFile();
+        readFileAsDataUrl(file, setLogo);
+        break;
+      }
+    }
+  });
+
+  logoModeTextRadio.addEventListener('change', function(){ if (this.checked) applyMode('text'); });
+  logoModeImageRadio.addEventListener('change', function(){ if (this.checked) applyMode('image'); });
+
+  companyNameInput.addEventListener('input', function(){
+    localStorage.setItem(NAME_KEY, companyNameInput.value);
+    updatePrintBrand();
+  });
+
+  function loadLogo(){
+    var saved = localStorage.getItem(LOGO_KEY);
+    if (saved){
+      logoImg.src = saved;
+      logoImg.style.display = 'block';
+      logoPlaceholder.style.display = 'none';
+    }
+  }
+
+  function loadBrandSettings(){
+    companyNameInput.value = localStorage.getItem(NAME_KEY) || '';
+    loadLogo();
+    var mode = localStorage.getItem(MODE_KEY) || 'text';
+    logoModeTextRadio.checked = (mode !== 'image');
+    logoModeImageRadio.checked = (mode === 'image');
+    logoModeTextPanel.style.display = (mode === 'image') ? 'none' : 'block';
+    logoModeImagePanel.style.display = (mode === 'image') ? 'block' : 'none';
+    updatePrintBrand();
+  }
+
+  loadBrandSettings();
+
+  function updatePrintHeaderNumber(){
+    var pn = form.elements['protocol_number'] ? form.elements['protocol_number'].value : '';
+    document.querySelectorAll('.print-header-topline').forEach(function(box){
+      var el = box.querySelector('.print-header-number');
+      if (el) el.textContent = pn ? ('Nr protokołu: ' + pn) : '';
+      box.style.display = pn ? 'inline-flex' : 'none';
+    });
+  }
+
+  updatePrintHeaderNumber();
+
+  function saveData(){
+    var data = {};
+    var elements = form.elements;
+    for (var i = 0; i < elements.length; i++){
+      var el = elements[i];
+      if (!el.name) continue;
+      if (el.type === 'radio'){
+        if (el.checked) data[el.name] = el.value;
+      } else if (el.type === 'checkbox'){
+        data[el.name] = el.checked;
+      } else {
+        data[el.name] = el.value;
+      }
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    buildWatermark();
+    updatePrintHeaderNumber();
+  }
+
+  function loadData(){
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    var data;
+    try { data = JSON.parse(raw); } catch(e){ return; }
+    var elements = form.elements;
+    for (var i = 0; i < elements.length; i++){
+      var el = elements[i];
+      if (!el.name || !(el.name in data)) continue;
+      if (el.type === 'radio'){
+        el.checked = (el.value === data[el.name]);
+      } else if (el.type === 'checkbox'){
+        el.checked = !!data[el.name];
+      } else {
+        el.value = data[el.name];
+      }
+    }
+  }
+
+  var PHOTOS_KEY = 'rs-certyfikat-5-photos';
+  var photoGrid = document.getElementById('photoGrid');
+  var photoFileInput = document.getElementById('photoFileInput');
+  var photoPasteZone = document.getElementById('photoPasteZone');
+  var photos = [];
+
+  function loadPhotos(){
+    var raw = localStorage.getItem(PHOTOS_KEY);
+    try { photos = raw ? JSON.parse(raw) : []; } catch(e){ photos = []; }
+  }
+
+  function savePhotos(){
+    localStorage.setItem(PHOTOS_KEY, JSON.stringify(photos));
+  }
+
+  function renderPhotoGrid(){
+    photoGrid.innerHTML = '';
+    photos.forEach(function(p){
+      var item = document.createElement('div');
+      item.className = 'photo-item';
+
+      var removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'photo-remove';
+      removeBtn.title = 'Usuń zdjęcie';
+      removeBtn.textContent = '×';
+      removeBtn.addEventListener('click', function(){
+        photos = photos.filter(function(x){ return x.id !== p.id; });
+        savePhotos();
+        renderPhotoGrid();
+      });
+
+      var thumb = document.createElement('div');
+      thumb.className = 'photo-thumb';
+      var img = document.createElement('img');
+      img.src = p.dataUrl;
+      img.alt = '';
+      thumb.appendChild(img);
+
+      var caption = document.createElement('input');
+      caption.type = 'text';
+      caption.className = 'photo-caption';
+      caption.placeholder = 'Opis (opcjonalnie)';
+      caption.value = p.caption || '';
+      caption.addEventListener('input', function(){
+        p.caption = caption.value;
+        savePhotos();
+      });
+
+      item.appendChild(removeBtn);
+      item.appendChild(thumb);
+      item.appendChild(caption);
+      photoGrid.appendChild(item);
+    });
+  }
+
+  function addPhotoFile(file){
+    if (!file || file.type.indexOf('image') === -1) return;
+    readFileAsDataUrl(file, function(dataUrl){
+      photos.push({id:'p'+Date.now()+Math.random().toString(36).slice(2), dataUrl:dataUrl, caption:''});
+      savePhotos();
+      renderPhotoGrid();
+    });
+  }
+
+  photoPasteZone.addEventListener('click', function(){ photoFileInput.click(); });
+  photoFileInput.addEventListener('change', function(){
+    if (photoFileInput.files) Array.prototype.forEach.call(photoFileInput.files, addPhotoFile);
+    photoFileInput.value = '';
+  });
+  photoPasteZone.addEventListener('paste', function(e){
+    e.stopPropagation();
+    var items = (e.clipboardData || window.clipboardData).items;
+    if (!items) return;
+    for (var i = 0; i < items.length; i++){
+      if (items[i].type.indexOf('image') !== -1) addPhotoFile(items[i].getAsFile());
+    }
+  });
+
+  function renderPrintPhotos(){
+    var wrap = document.getElementById('printOnlyPhotos');
+    var grid = document.getElementById('printPhotoGrid');
+    if (!photos.length){
+      wrap.style.display = 'none';
+      return;
+    }
+    grid.innerHTML = '';
+    photos.forEach(function(p){
+      var card = document.createElement('div');
+      card.className = 'photo-print-item';
+      var img = document.createElement('img');
+      img.src = p.dataUrl;
+      img.alt = '';
+      card.appendChild(img);
+      if (p.caption){
+        var cap = document.createElement('div');
+        cap.className = 'cap';
+        cap.textContent = p.caption;
+        card.appendChild(cap);
+      }
+      grid.appendChild(card);
+    });
+    wrap.style.display = '';
+  }
+
+  loadPhotos();
+  renderPhotoGrid();
+  renderPrintPhotos();
+  window.addEventListener('beforeprint', renderPrintPhotos);
+
+  var SKETCH_KEY = 'rs-certyfikat-5-sketch';
+  var sketchCanvas = document.getElementById('sketchCanvas');
+  var sketchCtx = sketchCanvas.getContext('2d');
+  var sketchCanvasWrap = sketchCanvas.closest('.sketch-canvas-wrap');
+  var sketchItems = [];
+  var sketchTool = 'pen';
+  var sketchColor = '#181818';
+  var sketchWidth = 2;
+  var sketchSelectedIndex = -1;
+  var sketchDragging = null;
+  var sketchDrawing = false;
+  var sketchCurrentStroke = null;
+  var sketchArrowStart = null;
+  var sketchArrowPreviewEnd = null;
+  var sketchTextEditor = null;
+
+  function sketchPointFromEvent(e){
+    var rect = sketchCanvas.getBoundingClientRect();
+    var scaleX = sketchCanvas.width / rect.width;
+    var scaleY = sketchCanvas.height / rect.height;
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
+    };
+  }
+
+  function sketchDistToSegment(px, py, x1, y1, x2, y2){
+    var A = px - x1, B = py - y1, C = x2 - x1, D = y2 - y1;
+    var lenSq = C * C + D * D;
+    var t = lenSq ? Math.max(0, Math.min(1, (A * C + B * D) / lenSq)) : 0;
+    var xx = x1 + t * C, yy = y1 + t * D;
+    return Math.hypot(px - xx, py - yy);
+  }
+
+  function sketchHitTestItems(pt){
+    for (var i = sketchItems.length - 1; i >= 0; i--){
+      var it = sketchItems[i];
+      if (it.type === 'textbox'){
+        if (pt.x >= it.x && pt.x <= it.x + it.w && pt.y >= it.y && pt.y <= it.y + it.h) return i;
+      } else if (it.type === 'arrow'){
+        if (sketchDistToSegment(pt.x, pt.y, it.x1, it.y1, it.x2, it.y2) < 12) return i;
+      }
+    }
+    return -1;
+  }
+
+  function sketchHitTestHandle(item, pt){
+    var R = 14;
+    if (item.type === 'arrow'){
+      if (Math.hypot(pt.x - item.x1, pt.y - item.y1) < R) return 'start';
+      if (Math.hypot(pt.x - item.x2, pt.y - item.y2) < R) return 'end';
+    } else if (item.type === 'textbox'){
+      if (Math.hypot(pt.x - (item.x + item.w), pt.y - (item.y + item.h)) < R) return 'resize';
+    }
+    return null;
+  }
+
+  function drawSketchArrow(ctx, x1, y1, x2, y2, color, width){
+    var headLen = Math.max(14, width * 4);
+    var angle = Math.atan2(y2 - y1, x2 - x1);
+    var lineEndX = x2 - headLen * 0.6 * Math.cos(angle);
+    var lineEndY = y2 - headLen * 0.6 * Math.sin(angle);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(lineEndX, lineEndY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 7), y2 - headLen * Math.sin(angle - Math.PI / 7));
+    ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 7), y2 - headLen * Math.sin(angle + Math.PI / 7));
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function wrapSketchText(ctx, text, x, y, maxWidth, lineHeight){
+    var words = text.split(/\s+/);
+    var line = '';
+    var cy = y;
+    words.forEach(function(word){
+      var test = line ? line + ' ' + word : word;
+      if (ctx.measureText(test).width > maxWidth && line){
+        ctx.fillText(line, x, cy);
+        line = word;
+        cy += lineHeight;
+      } else {
+        line = test;
+      }
+    });
+    if (line) ctx.fillText(line, x, cy);
+  }
+
+  function drawSketchHandle(x, y){
+    sketchCtx.fillStyle = '#ffffff';
+    sketchCtx.strokeStyle = '#c8102e';
+    sketchCtx.lineWidth = 2;
+    sketchCtx.beginPath();
+    sketchCtx.arc(x, y, 8, 0, Math.PI * 2);
+    sketchCtx.fill();
+    sketchCtx.stroke();
+  }
+
+  function drawSketchSelection(it){
+    if (it.type === 'textbox'){
+      sketchCtx.save();
+      sketchCtx.setLineDash([5, 4]);
+      sketchCtx.strokeStyle = '#c8102e';
+      sketchCtx.lineWidth = 1.5;
+      sketchCtx.strokeRect(it.x - 3, it.y - 3, it.w + 6, it.h + 6);
+      sketchCtx.restore();
+      drawSketchHandle(it.x + it.w, it.y + it.h);
+    } else if (it.type === 'arrow'){
+      drawSketchHandle(it.x1, it.y1);
+      drawSketchHandle(it.x2, it.y2);
+    }
+  }
+
+  function redrawSketch(){
+    sketchCtx.clearRect(0, 0, sketchCanvas.width, sketchCanvas.height);
+    sketchCtx.fillStyle = '#ffffff';
+    sketchCtx.fillRect(0, 0, sketchCanvas.width, sketchCanvas.height);
+    sketchItems.forEach(function(it, idx){
+      if (it.type === 'stroke'){
+        if (it.points.length < 2) return;
+        sketchCtx.strokeStyle = it.color;
+        sketchCtx.lineWidth = it.width;
+        sketchCtx.lineJoin = 'round';
+        sketchCtx.lineCap = 'round';
+        sketchCtx.beginPath();
+        sketchCtx.moveTo(it.points[0].x, it.points[0].y);
+        for (var i = 1; i < it.points.length; i++) sketchCtx.lineTo(it.points[i].x, it.points[i].y);
+        sketchCtx.stroke();
+      } else if (it.type === 'text'){
+        sketchCtx.fillStyle = it.color;
+        sketchCtx.font = '600 22px Segoe UI, Arial, sans-serif';
+        sketchCtx.fillText(it.text, it.x, it.y);
+      } else if (it.type === 'textbox'){
+        sketchCtx.strokeStyle = it.color;
+        sketchCtx.lineWidth = 2;
+        sketchCtx.strokeRect(it.x, it.y, it.w, it.h);
+        sketchCtx.fillStyle = it.color;
+        sketchCtx.font = '600 15px Segoe UI, Arial, sans-serif';
+        sketchCtx.textBaseline = 'top';
+        wrapSketchText(sketchCtx, it.text, it.x + 6, it.y + 6, it.w - 12, 18);
+      } else if (it.type === 'arrow'){
+        drawSketchArrow(sketchCtx, it.x1, it.y1, it.x2, it.y2, it.color, it.width);
+      }
+      if (idx === sketchSelectedIndex && sketchTool === 'move') drawSketchSelection(it);
+    });
+    if (sketchArrowStart && sketchArrowPreviewEnd){
+      drawSketchArrow(sketchCtx, sketchArrowStart.x, sketchArrowStart.y, sketchArrowPreviewEnd.x, sketchArrowPreviewEnd.y, sketchColor, sketchWidth);
+    }
+  }
+
+  function saveSketch(){
+    localStorage.setItem(SKETCH_KEY, JSON.stringify(sketchItems));
+  }
+
+  function loadSketch(){
+    var raw = localStorage.getItem(SKETCH_KEY);
+    if (raw){
+      try { sketchItems = JSON.parse(raw); } catch(e){ sketchItems = []; }
+    }
+    redrawSketch();
+  }
+
+  function openSketchTextEditor(x, y, w, h, existingIndex){
+    if (sketchTextEditor) return;
+    var rect = sketchCanvas.getBoundingClientRect();
+    var wrapRect = sketchCanvasWrap.getBoundingClientRect();
+    var scaleX = sketchCanvas.width / rect.width;
+    var scaleY = sketchCanvas.height / rect.height;
+    var left = (rect.left - wrapRect.left) + x / scaleX;
+    var top = (rect.top - wrapRect.top) + y / scaleY;
+    var ta = document.createElement('textarea');
+    ta.value = existingIndex != null ? sketchItems[existingIndex].text : '';
+    ta.style.cssText = 'position:absolute; left:' + left + 'px; top:' + top + 'px; width:' + (w / scaleX) + 'px; height:' + (h / scaleY) + 'px; ' +
+      'border:2px solid ' + sketchColor + '; border-radius:4px; padding:4px 6px; font:600 14px Segoe UI, Arial, sans-serif; ' +
+      'color:' + sketchColor + '; resize:none; background:#fffef2; z-index:50; box-sizing:border-box;';
+    sketchCanvasWrap.appendChild(ta);
+    sketchTextEditor = ta;
+    ta.focus();
+
+    function commit(){
+      var val = ta.value.trim();
+      if (sketchTextEditor === ta){
+        sketchCanvasWrap.removeChild(ta);
+        sketchTextEditor = null;
+      }
+      if (existingIndex != null){
+        if (val) sketchItems[existingIndex].text = val;
+        else sketchItems.splice(existingIndex, 1);
+      } else if (val){
+        sketchItems.push({type:'textbox', x:x, y:y, w:w, h:h, text:val, color:sketchColor});
+      }
+      redrawSketch();
+      saveSketch();
+    }
+    ta.addEventListener('blur', commit);
+    ta.addEventListener('keydown', function(ev){
+      if (ev.key === 'Escape'){ ev.preventDefault(); ta.value = ''; ta.blur(); }
+    });
+  }
+
+  sketchCanvas.addEventListener('pointerdown', function(e){
+    if (sketchTextEditor) return;
+    var pt = sketchPointFromEvent(e);
+
+    if (sketchTool === 'move'){
+      if (sketchSelectedIndex >= 0){
+        var handle = sketchHitTestHandle(sketchItems[sketchSelectedIndex], pt);
+        if (handle){
+          sketchDragging = {mode:'handle', handle:handle, index:sketchSelectedIndex};
+          sketchCanvas.setPointerCapture(e.pointerId);
+          return;
+        }
+      }
+      var idx = sketchHitTestItems(pt);
+      sketchSelectedIndex = idx;
+      if (idx >= 0){
+        sketchDragging = {mode:'move', index:idx, startX:pt.x, startY:pt.y, orig: JSON.parse(JSON.stringify(sketchItems[idx]))};
+        sketchCanvas.setPointerCapture(e.pointerId);
+      }
+      redrawSketch();
+      return;
+    }
+
+    if (sketchTool === 'textbox'){
+      openSketchTextEditor(pt.x, pt.y, 200, 60, null);
+      return;
+    }
+
+    if (sketchTool === 'arrow'){
+      sketchArrowStart = pt;
+      sketchDrawing = true;
+      sketchCanvas.setPointerCapture(e.pointerId);
+      return;
+    }
+
+    sketchDrawing = true;
+    sketchCurrentStroke = {type:'stroke', color: sketchColor, width: sketchWidth, points:[pt]};
+    sketchItems.push(sketchCurrentStroke);
+    sketchCanvas.setPointerCapture(e.pointerId);
+  });
+
+  sketchCanvas.addEventListener('pointermove', function(e){
+    var pt = sketchPointFromEvent(e);
+
+    if (sketchTool === 'move' && sketchDragging){
+      var item = sketchItems[sketchDragging.index];
+      if (sketchDragging.mode === 'handle'){
+        if (item.type === 'arrow'){
+          if (sketchDragging.handle === 'start'){ item.x1 = pt.x; item.y1 = pt.y; }
+          else { item.x2 = pt.x; item.y2 = pt.y; }
+        } else if (item.type === 'textbox'){
+          item.w = Math.max(60, pt.x - item.x);
+          item.h = Math.max(30, pt.y - item.y);
+        }
+      } else if (sketchDragging.mode === 'move'){
+        var dx = pt.x - sketchDragging.startX;
+        var dy = pt.y - sketchDragging.startY;
+        if (item.type === 'arrow'){
+          item.x1 = sketchDragging.orig.x1 + dx;
+          item.y1 = sketchDragging.orig.y1 + dy;
+          item.x2 = sketchDragging.orig.x2 + dx;
+          item.y2 = sketchDragging.orig.y2 + dy;
+        } else if (item.type === 'textbox'){
+          item.x = sketchDragging.orig.x + dx;
+          item.y = sketchDragging.orig.y + dy;
+        }
+      }
+      redrawSketch();
+      return;
+    }
+
+    if (sketchTool === 'arrow' && sketchDrawing && sketchArrowStart){
+      sketchArrowPreviewEnd = pt;
+      redrawSketch();
+      return;
+    }
+
+    if (sketchTool === 'pen' && sketchDrawing && sketchCurrentStroke){
+      sketchCurrentStroke.points.push(pt);
+      redrawSketch();
+    }
+  });
+
+  function endSketchInteraction(){
+    if (sketchTool === 'move' && sketchDragging){
+      sketchDragging = null;
+      saveSketch();
+      return;
+    }
+    if (sketchTool === 'arrow' && sketchDrawing && sketchArrowStart){
+      var pt = sketchArrowPreviewEnd || sketchArrowStart;
+      var dx = pt.x - sketchArrowStart.x, dy = pt.y - sketchArrowStart.y;
+      if (Math.hypot(dx, dy) > 8){
+        sketchItems.push({type:'arrow', x1:sketchArrowStart.x, y1:sketchArrowStart.y, x2:pt.x, y2:pt.y, color:sketchColor, width:sketchWidth});
+      }
+      sketchDrawing = false;
+      sketchArrowStart = null;
+      sketchArrowPreviewEnd = null;
+      redrawSketch();
+      saveSketch();
+      return;
+    }
+    if (sketchDrawing){
+      sketchDrawing = false;
+      sketchCurrentStroke = null;
+      saveSketch();
+    }
+  }
+  sketchCanvas.addEventListener('pointerup', endSketchInteraction);
+  sketchCanvas.addEventListener('pointerleave', endSketchInteraction);
+  sketchCanvas.addEventListener('pointercancel', endSketchInteraction);
+
+  sketchCanvas.addEventListener('dblclick', function(e){
+    var pt = sketchPointFromEvent(e);
+    var idx = sketchHitTestItems(pt);
+    if (idx >= 0 && sketchItems[idx].type === 'textbox'){
+      openSketchTextEditor(sketchItems[idx].x, sketchItems[idx].y, sketchItems[idx].w, sketchItems[idx].h, idx);
+    }
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (sketchTool !== 'move' || sketchSelectedIndex < 0) return;
+    if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(e.target.tagName) !== -1) return;
+    if (e.key === 'Delete' || e.key === 'Backspace'){
+      e.preventDefault();
+      sketchItems.splice(sketchSelectedIndex, 1);
+      sketchSelectedIndex = -1;
+      redrawSketch();
+      saveSketch();
+    }
+  });
+
+  document.querySelectorAll('.sketch-tool-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.sketch-tool-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      sketchTool = btn.dataset.tool;
+      if (sketchTool !== 'move') sketchSelectedIndex = -1;
+      redrawSketch();
+    });
+  });
+  document.querySelectorAll('.sketch-color-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.sketch-color-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      sketchColor = btn.dataset.color;
+    });
+  });
+  document.querySelectorAll('.sketch-width-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.sketch-width-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      sketchWidth = parseInt(btn.dataset.width, 10);
+    });
+  });
+  document.getElementById('sketchDeleteBtn').addEventListener('click', function(){
+    if (sketchSelectedIndex < 0) return;
+    sketchItems.splice(sketchSelectedIndex, 1);
+    sketchSelectedIndex = -1;
+    redrawSketch();
+    saveSketch();
+  });
+  document.getElementById('sketchUndoBtn').addEventListener('click', function(){
+    sketchItems.pop();
+    sketchSelectedIndex = -1;
+    redrawSketch();
+    saveSketch();
+  });
+  document.getElementById('sketchClearBtn').addEventListener('click', function(){
+    if (!sketchItems.length) return;
+    if (!confirm('Wyczyścić cały szkic?')) return;
+    sketchItems = [];
+    sketchSelectedIndex = -1;
+    redrawSketch();
+    saveSketch();
+  });
+
+  function renderPrintSketch(){
+    var wrap = document.getElementById('printOnlySketch');
+    var img = document.getElementById('printSketchImg');
+    if (!sketchItems.length){
+      wrap.style.display = 'none';
+      return;
+    }
+    var savedSelection = sketchSelectedIndex;
+    sketchSelectedIndex = -1;
+    redrawSketch();
+    img.src = sketchCanvas.toDataURL('image/png');
+    sketchSelectedIndex = savedSelection;
+    redrawSketch();
+    wrap.style.display = '';
+  }
+
+  loadSketch();
+  renderPrintSketch();
+  window.addEventListener('beforeprint', renderPrintSketch);
+
+  form.addEventListener('input', saveData);
+  form.addEventListener('change', saveData);
+  loadData();
+
+  document.getElementById('clearBtn').addEventListener('click', function(){
+    if (!confirm('Wyczyścić wszystkie wpisane dane w tym formularzu?')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(PHOTOS_KEY);
+    localStorage.removeItem(SKETCH_KEY);
+    form.reset();
+    photos = [];
+    renderPhotoGrid();
+    renderPrintPhotos();
+    sketchItems = [];
+    sketchSelectedIndex = -1;
+    redrawSketch();
+    renderPrintSketch();
+  });
+
+  document.getElementById('printBtn').addEventListener('click', function(){
+    window.print();
+  });
+
+  var PDF_PASSWORD_KEY = 'rs-pdf-owner-password';
+  var pdfOwnerPasswordInput = document.getElementById('pdfOwnerPasswordInput');
+  pdfOwnerPasswordInput.value = localStorage.getItem(PDF_PASSWORD_KEY) || '';
+  pdfOwnerPasswordInput.addEventListener('input', function(){
+    localStorage.setItem(PDF_PASSWORD_KEY, pdfOwnerPasswordInput.value);
+  });
+
+  function collectPrintBlocks(){
+    var blocks = [];
+    Array.prototype.forEach.call(form.children, function(el){
+      if (el.classList.contains('print-only-photos')){
+        if (getComputedStyle(el).display === 'none') return;
+        var ph = el.querySelector('.print-header'); if (ph) blocks.push(ph);
+        var header = el.querySelector('.cert-section-header'); if (header) blocks.push(header);
+        el.querySelectorAll('.photo-print-item').forEach(function(item){ blocks.push(item); });
+        var pf = el.querySelector('.print-footer'); if (pf) blocks.push(pf);
+      } else if (el.classList.contains('print-only-sketch')){
+        if (getComputedStyle(el).display === 'none') return;
+        var sph = el.querySelector('.print-header'); if (sph) blocks.push(sph);
+        var scs = el.querySelector('.cert-section'); if (scs) blocks.push(scs);
+        var spf = el.querySelector('.print-footer'); if (spf) blocks.push(spf);
+      } else {
+        blocks.push(el);
+      }
+    });
+    return blocks.filter(function(el){
+      return el && getComputedStyle(el).display !== 'none';
+    });
+  }
+
+  function applyForcedPrintStyles(captureWidth){
+    var sheets = [...document.styleSheets];
+    var rules = [];
+    sheets.forEach(function(sheet){
+      try {
+        Array.prototype.forEach.call(sheet.cssRules, function(rule){
+          if (rule.media && Array.prototype.includes.call(rule.media, 'print')) rules.push(rule);
+        });
+      } catch(e){}
+    });
+    var css = rules.map(function(r){
+      return r.cssText.replace(/^@media print\s*{([\s\S]*)}$/, '$1');
+    }).join('\n');
+    var style = document.createElement('style');
+    style.id = 'forcedPrintStyles';
+    style.textContent = css;
+    document.head.appendChild(style);
+
+    document.body.dataset.prevWidth = document.body.style.width;
+    document.body.dataset.prevMaxWidth = document.body.style.maxWidth;
+    document.body.dataset.prevMargin = document.body.style.margin;
+    document.body.style.width = captureWidth + 'px';
+    document.body.style.maxWidth = captureWidth + 'px';
+    document.body.style.margin = '0';
+  }
+
+  function removeForcedPrintStyles(){
+    var el = document.getElementById('forcedPrintStyles');
+    if (el) el.remove();
+    document.body.style.width = document.body.dataset.prevWidth || '';
+    document.body.style.maxWidth = document.body.dataset.prevMaxWidth || '';
+    document.body.style.margin = document.body.dataset.prevMargin || '';
+  }
+
+  function drawWatermarkOnPage(doc, text, pageWidth, pageHeight){
+    if (!text) return;
+    doc.saveGraphicsState();
+    doc.setGState(new doc.GState({opacity: 0.08}));
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.setTextColor(0, 0, 0);
+    for (var gy = 20; gy < pageHeight + 40; gy += 45){
+      for (var gx = -40; gx < pageWidth + 40; gx += 100){
+        doc.text(text, gx, gy, {angle: 30});
+      }
+    }
+    doc.restoreGraphicsState();
+  }
+
+  function captureBodyOnce(scale, captureWidth){
+    return new Promise(function(resolve, reject){
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          html2canvas(document.body, {
+            scale: scale,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            width: captureWidth,
+            windowWidth: captureWidth,
+            height: document.body.scrollHeight,
+            windowHeight: document.body.scrollHeight
+          }).then(resolve).catch(reject);
+        });
+      });
+    });
+  }
+
+  function hasRealContentNearTop(canvas, scale){
+    var sampleHeight = Math.min(canvas.height, Math.round(120 * scale));
+    if (sampleHeight <= 0) return false;
+    var ctx = canvas.getContext('2d');
+    var imgData;
+    try {
+      imgData = ctx.getImageData(0, 0, canvas.width, sampleHeight);
+    } catch(e){
+      return true;
+    }
+    var data = imgData.data;
+    for (var i = 0; i < data.length; i += 4 * 37){
+      var lum = (data[i] + data[i+1] + data[i+2]) / 3;
+      if (lum < 150) return true;
+    }
+    return false;
+  }
+
+  function captureBodyWithRetry(scale, captureWidth, attemptsLeft){
+    var expected = document.body.scrollHeight;
+    return captureBodyOnce(scale, captureWidth).then(function(canvas){
+      var actual = canvas.height / scale;
+      var heightOk = actual >= expected - 15;
+      var contentOk = hasRealContentNearTop(canvas, scale);
+      if ((!heightOk || !contentOk) && attemptsLeft > 0){
+        return captureBodyWithRetry(scale, captureWidth, attemptsLeft - 1);
+      }
+      return canvas;
+    });
+  }
+
+  function generateLockedPdf(){
+    var btn = document.getElementById('lockedPdfBtn');
+    var password = localStorage.getItem(PDF_PASSWORD_KEY) || '';
+    if (!password){
+      alert('Najpierw ustaw hasło zabezpieczające w Sekcji 1 (pole "Hasło zabezpieczające do Zablokowany PDF"), a potem spróbuj ponownie.');
+      pdfOwnerPasswordInput.focus();
+      return;
+    }
+    if (typeof window.jspdf === 'undefined' || typeof window.html2canvas === 'undefined'){
+      alert('Nie udało się wczytać bibliotek do generowania zablokowanego PDF-a. Sprawdź, czy folder "libs" znajduje się obok tego pliku.');
+      return;
+    }
+
+    var originalLabel = btn.textContent;
+    btn.textContent = 'Generowanie… proszę czekać';
+    btn.classList.add('is-disabled');
+
+    var watermarkEl = document.getElementById('printWatermark');
+    var watermarkPrevDisplay = watermarkEl ? watermarkEl.style.display : '';
+
+    var SCALE = 2;
+    var CAPTURE_WIDTH = 1123;
+    var PAGE_HEIGHT_CSS = 780;
+
+    window.dispatchEvent(new Event('beforeprint'));
+    applyForcedPrintStyles(CAPTURE_WIDTH);
+    if (watermarkEl) watermarkEl.style.display = 'none';
+    window.scrollTo(0, 0);
+
+    var pn = form.elements['protocol_number'] ? form.elements['protocol_number'].value : '';
+    var watermarkText = pn ? ('GRID · ' + pn) : 'GRID';
+
+    var blocks = collectPrintBlocks();
+    var blockRects = blocks.map(function(el){
+      var r = el.getBoundingClientRect();
+      return {top: r.top + window.scrollY, bottom: r.bottom + window.scrollY};
+    });
+
+    captureBodyWithRetry(SCALE, CAPTURE_WIDTH, 4).then(function(bigCanvas){
+      removeForcedPrintStyles();
+      if (watermarkEl) watermarkEl.style.display = watermarkPrevDisplay;
+
+      var totalHeight = bigCanvas.height / SCALE;
+      var CUT_MARGIN = 24;
+      var pageRanges = [];
+      var cursor = 0;
+      var prevBottom = 0;
+      blockRects.forEach(function(rect){
+        if (rect.bottom - cursor > PAGE_HEIGHT_CSS){
+          var cut = rect.top - CUT_MARGIN;
+          if (cut > prevBottom && cut > cursor){
+            pageRanges.push({start: cursor, end: cut});
+            cursor = cut;
+          } else if (prevBottom > cursor){
+            pageRanges.push({start: cursor, end: prevBottom});
+            cursor = prevBottom;
+          }
+        }
+        prevBottom = rect.bottom;
+      });
+      pageRanges.push({start: cursor, end: totalHeight});
+      pageRanges = pageRanges.filter(function(r){ return r.end - r.start > 1; });
+      if (!pageRanges.length) pageRanges.push({start: 0, end: totalHeight});
+
+      var jsPDF = window.jspdf.jsPDF;
+      var doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+        encryption: {
+          userPassword: '',
+          ownerPassword: password,
+          userPermissions: ['print']
+        }
+      });
+
+      var pageWidthMM = doc.internal.pageSize.getWidth();
+      var pageHeightMM = doc.internal.pageSize.getHeight();
+      var marginMM = 6;
+      var usableWidthMM = pageWidthMM - marginMM * 2;
+
+      pageRanges.forEach(function(range, idx){
+        if (idx > 0) doc.addPage('a4', 'landscape');
+        var sliceHeightCss = range.end - range.start;
+        var sliceCanvas = document.createElement('canvas');
+        sliceCanvas.width = bigCanvas.width;
+        sliceCanvas.height = Math.max(1, Math.floor(sliceHeightCss * SCALE));
+        var ctx = sliceCanvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+        ctx.drawImage(bigCanvas, 0, range.start * SCALE, bigCanvas.width, sliceCanvas.height, 0, 0, sliceCanvas.width, sliceCanvas.height);
+        var imgData = sliceCanvas.toDataURL('image/jpeg', 0.92);
+        var imgHeightMM = usableWidthMM * (sliceCanvas.height / sliceCanvas.width);
+        doc.addImage(imgData, 'JPEG', marginMM, marginMM, usableWidthMM, imgHeightMM);
+        drawWatermarkOnPage(doc, watermarkText, pageWidthMM, pageHeightMM);
+      });
+
+      var safeName = (pn || 'protokol').replace(/[\\/:*?"<>|]+/g, '-');
+      doc.save('Protokol-' + safeName + '-zablokowany.pdf');
+
+      btn.textContent = originalLabel;
+      btn.classList.remove('is-disabled');
+    }).catch(function(err){
+      removeForcedPrintStyles();
+      if (watermarkEl) watermarkEl.style.display = watermarkPrevDisplay;
+      console.error(err);
+      alert('Nie udało się wygenerować zablokowanego PDF-a. Spróbuj ponownie albo użyj zwykłego drukowania.');
+      btn.textContent = originalLabel;
+      btn.classList.remove('is-disabled');
+    });
+  }
+
+  document.getElementById('lockedPdfBtn').addEventListener('click', generateLockedPdf);
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth-guard.js"></script>
+</body>
+</html>

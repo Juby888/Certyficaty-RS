@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protokoły Pomiarowe Grid</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .hero{
+    position:relative;
+    z-index:1;
+    max-width:1180px;
+    margin:0 auto;
+    padding:90px 24px 70px;
+    text-align:center;
+  }
+  .hero .tag{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 14px;
+    border:1px solid rgba(200,16,46,0.25);
+    border-radius:999px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--red);
+    background:rgba(200,16,46,0.06);
+    margin-bottom:24px;
+  }
+  .hero .tag .dot{width:6px;height:6px;border-radius:50%;background:var(--red); box-shadow:0 0 8px rgba(200,16,46,0.6);}
+  .hero h1{
+    font-size:clamp(32px, 5vw, 54px);
+    font-weight:800;
+    line-height:1.15;
+    margin-bottom:20px;
+    letter-spacing:-0.5px;
+  }
+  .hero h1 .accent{color:var(--red);}
+  .hero p.sub{
+    max-width:640px;
+    margin:0 auto 34px;
+    color:var(--text-muted);
+    font-size:17px;
+  }
+  .hero-actions{display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+
+  section.tiles{
+    position:relative;
+    z-index:1;
+    max-width:1180px;
+    margin:0 auto;
+    padding:20px 24px 100px;
+  }
+  .tiles-head{text-align:center; margin-bottom:44px;}
+  .tiles-head h2{font-size:28px; font-weight:700; margin-bottom:10px;}
+  .tiles-head p{color:var(--text-muted); font-size:15px;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:22px;
+  }
+  @media(max-width:860px){ .grid{grid-template-columns:repeat(2, 1fr);} }
+  @media(max-width:560px){ .grid{grid-template-columns:1fr;} }
+
+  .tile{
+    position:relative;
+    display:block;
+    text-decoration:none;
+    color:inherit;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:28px 22px;
+    overflow:hidden;
+    transition:transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+    cursor:pointer;
+    box-shadow:0 1px 3px rgba(0,0,0,0.04);
+  }
+  .tile::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; height:4px;
+    background:linear-gradient(90deg, var(--red), var(--red-light) 70%);
+    opacity:0;
+    transition:opacity .22s ease;
+  }
+  .tile:hover{
+    transform:translateY(-6px);
+    border-color:rgba(200,16,46,0.35);
+    box-shadow:0 16px 32px rgba(200,16,46,0.14), 0 4px 10px rgba(0,0,0,0.06);
+  }
+  .tile:hover::before{opacity:1;}
+  .tile-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;}
+  .tile-num{
+    width:44px;height:44px;
+    border-radius:10px;
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;
+    font-size:16px;
+    color:var(--red);
+    transition:background .22s ease, color .22s ease;
+  }
+  .tile:hover .tile-num{background:var(--red); color:#ffffff; border-color:var(--red);}
+  .tile-icon{width:26px;height:26px; color:var(--text-muted); transition:color .22s ease;}
+  .tile:hover .tile-icon{color:var(--red);}
+  .tile h3{font-size:18px; font-weight:700; margin-bottom:6px;}
+  .tile p{font-size:13.5px; color:var(--text-muted);}
+  .tile-footer{
+    margin-top:20px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--red);
+    opacity:0;
+    transform:translateX(-4px);
+    transition:opacity .22s ease, transform .22s ease;
+  }
+  .tile:hover .tile-footer{opacity:1; transform:translateX(0);}
+</style>
+</head>
+<body data-page="home">
+
+<div class="circuit-bg"></div>
+
+<header>
+  <div class="nav-wrap">
+    <div class="logo">
+      <div class="bolt">
+        <svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+      </div>
+      <div>Protokoły Pomiarowe <span class="rs">Grid</span></div>
+    </div>
+    <nav class="links">
+      <a href="#tiles">Protokoły</a>
+      <a href="#">O nas</a>
+      <a href="#">Kontakt</a>
+    </nav>
+    <div class="auth-buttons">
+      <a href="login.html" class="btn btn-outline">Zaloguj się</a>
+      <a href="register.html" class="btn btn-solid">Zarejestruj się</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="tag"><span class="dot"></span> Panel dla elektryków</div>
+  <h1>Protokoły pomiarowe <span class="accent">bez papierologii</span></h1>
+  <p class="sub">Wypełniaj protokoły pomiarowe online, drukuj, wysyłaj mailem lub eksportuj do zabezpieczonego PDF — wszystko w jednym miejscu.</p>
+  <div class="hero-actions">
+    <a href="#tiles" class="btn btn-solid btn-lg">Przejdź do protokołów</a>
+    <a href="#" class="btn btn-outline btn-lg">Dowiedz się więcej</a>
+  </div>
+</section>
+
+<section class="tiles" id="tiles">
+  <div class="tiles-head">
+    <h2>Wybierz protokół</h2>
+    <p>Kliknij kafelek, aby otworzyć i uzupełnić dokument</p>
+  </div>
+  <div class="grid">
+
+    <a href="certyfikat-1.html" class="tile">
+      <div class="tile-top">
+        <div class="tile-num">1</div>
+        <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/><path d="M9 13h6M9 17h6M9 9h3"/></svg>
+      </div>
+      <h3>Protokół Kontrolno-Pomiarowy odbioru nowej instalacji elektrycznej</h3>
+      <p>Nowe budownictwo lub całkowita wymiana instalacji w starym budownictwie</p>
+      <div class="tile-footer">Otwórz →</div>
+    </a>
+
+    <a href="certyfikat-2.html" class="tile">
+      <div class="tile-top">
+        <div class="tile-num">2</div>
+        <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/><path d="M9 13h6M9 17h6M9 9h3"/></svg>
+      </div>
+      <h3>Protokół Kontrolno-Pomiarowy istniejącej instalacji</h3>
+      <p>Okresowa kontrola stanu technicznego instalacji elektrycznej</p>
+      <div class="tile-footer">Otwórz →</div>
+    </a>
+
+    <a href="certyfikat-3.html" class="tile">
+      <div class="tile-top">
+        <div class="tile-num">3</div>
+        <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/><path d="M9 13h6M9 17h6M9 9h3"/></svg>
+      </div>
+      <h3>Protokół Pomiarowy Instalacji Odgromowej i Uziemień</h3>
+      <p>Pomiar rezystancji uziemień i kontrola stanu technicznego instalacji odgromowej</p>
+      <div class="tile-footer">Otwórz →</div>
+    </a>
+
+    <a href="certyfikat-4.html" class="tile">
+      <div class="tile-top">
+        <div class="tile-num">4</div>
+        <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/><path d="M9 13h6M9 17h6M9 9h3"/></svg>
+      </div>
+      <h3>Protokół Odbioru Instalacji Fotowoltaicznej</h3>
+      <p>Badania odbiorcze i przekazanie instalacji PV zgodnie z PN-EN 62446-1</p>
+      <div class="tile-footer">Otwórz →</div>
+    </a>
+
+    <a href="certyfikat-5.html" class="tile">
+      <div class="tile-top">
+        <div class="tile-num">5</div>
+        <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/><path d="M9 13h6M9 17h6M9 9h3"/></svg>
+      </div>
+      <h3>Oświadczenie o Gotowości do Przyłączenia</h3>
+      <p>Zgłoszenie instalacji odbiorczej gotowej do przyłączenia do sieci (OSD)</p>
+      <div class="tile-footer">Otwórz →</div>
+    </a>
+
+    <a href="certyfikat-6.html" class="tile">
+      <div class="tile-top">
+        <div class="tile-num">6</div>
+        <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/><path d="M9 13h6M9 17h6M9 9h3"/></svg>
+      </div>
+      <h3>Protokół Odbioru Stacji Ładowania Pojazdów Elektrycznych</h3>
+      <p>Badania odbiorcze instalacji zasilającej stację ładowania (wallbox)</p>
+      <div class="tile-footer">Otwórz →</div>
+    </a>
+
+  </div>
+</section>
+
+<footer>
+  &copy; 2026 Protokoły Pomiarowe Grid. Wszystkie prawa zastrzeżone.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth-guard.js"></script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cennik | Protokoły Pomiarowe Grid</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  main{
+    position:relative;
+    z-index:1;
+    max-width:1080px;
+    margin:0 auto;
+    padding:50px 24px 100px;
+  }
+  .pricing-head{text-align:center; margin-bottom:40px;}
+  .pricing-head h1{font-size:30px; font-weight:800; margin-bottom:10px;}
+  .pricing-head p{color:var(--text-muted); font-size:15.5px;}
+
+  .plan-card{
+    background:var(--bg);
+    border:2px solid var(--red);
+    border-radius:14px;
+    padding:28px 26px;
+    margin-bottom:40px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    flex-wrap:wrap;
+    box-shadow:0 10px 30px rgba(200,16,46,0.1);
+  }
+  .plan-card h2{font-size:19px; font-weight:800; margin-bottom:6px;}
+  .plan-card p{font-size:13.5px; color:var(--text-muted); max-width:480px;}
+  .plan-price{font-size:15px; font-weight:700; color:var(--red); white-space:nowrap;}
+
+  .protocols-head{font-size:15px; font-weight:700; margin-bottom:16px; color:var(--text-main);}
+  .protocol-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:18px;
+  }
+  @media(max-width:860px){ .protocol-grid{grid-template-columns:repeat(2, 1fr);} }
+  @media(max-width:560px){ .protocol-grid{grid-template-columns:1fr;} }
+
+  .protocol-card{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .protocol-card.is-target{border-color:var(--red); box-shadow:0 6px 20px rgba(200,16,46,0.15);}
+  .protocol-card h3{font-size:14.5px; font-weight:700; line-height:1.3;}
+  .protocol-card .price{font-size:13px; font-weight:700; color:var(--red); margin-top:auto;}
+  .coming-soon-note{
+    text-align:center;
+    margin-top:36px;
+    font-size:13px;
+    color:var(--text-muted);
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="circuit-bg"></div>
+
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo">
+      <div class="bolt">
+        <svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+      </div>
+      <div>Protokoły Pomiarowe <span class="rs">Grid</span></div>
+    </a>
+    <div class="auth-buttons">
+      <a href="login.html" class="btn btn-outline">Zaloguj się</a>
+      <a href="register.html" class="btn btn-solid">Zarejestruj się</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="pricing-head">
+    <h1>Cennik</h1>
+    <p>Wypróbuj każdy protokół za darmo w trybie demo. Druk i eksport PDF wymagają wykupienia dostępu.</p>
+  </div>
+
+  <div class="plan-card">
+    <div>
+      <h2>Dostęp do wszystkich protokołów</h2>
+      <p>Subskrypcja obejmująca pełny dostęp (druk, eksport, Zablokowany PDF) do wszystkich protokołów w serwisie.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+      <div class="plan-price">Zobacz cenę w koszyku Stripe</div>
+      <button type="button" class="btn btn-solid btn-lg" id="subscribeBtn">Wykup subskrypcję</button>
+    </div>
+  </div>
+
+  <div class="protocols-head">Albo kup dostęp do pojedynczego protokołu (dostęp bezterminowy)</div>
+  <div class="protocol-grid" id="protocolGrid">
+    <div class="protocol-card" data-protocol="certyfikat-1">
+      <h3>Protokół odbioru nowej instalacji elektrycznej</h3>
+      <div class="price">Zobacz cenę w koszyku Stripe</div>
+      <button type="button" class="btn btn-outline btn-sm">Kup dostęp</button>
+    </div>
+    <div class="protocol-card" data-protocol="certyfikat-2">
+      <h3>Protokół istniejącej instalacji (okresowy)</h3>
+      <div class="price">Zobacz cenę w koszyku Stripe</div>
+      <button type="button" class="btn btn-outline btn-sm">Kup dostęp</button>
+    </div>
+    <div class="protocol-card" data-protocol="certyfikat-3">
+      <h3>Instalacja odgromowa i uziemienia</h3>
+      <div class="price">Zobacz cenę w koszyku Stripe</div>
+      <button type="button" class="btn btn-outline btn-sm">Kup dostęp</button>
+    </div>
+    <div class="protocol-card" data-protocol="certyfikat-4">
+      <h3>Odbiór instalacji fotowoltaicznej</h3>
+      <div class="price">Zobacz cenę w koszyku Stripe</div>
+      <button type="button" class="btn btn-outline btn-sm">Kup dostęp</button>
+    </div>
+    <div class="protocol-card" data-protocol="certyfikat-5">
+      <h3>Oświadczenie o gotowości do przyłączenia</h3>
+      <div class="price">Zobacz cenę w koszyku Stripe</div>
+      <button type="button" class="btn btn-outline btn-sm">Kup dostęp</button>
+    </div>
+    <div class="protocol-card" data-protocol="certyfikat-6">
+      <h3>Odbiór stacji ładowania pojazdów elektrycznych</h3>
+      <div class="price">Zobacz cenę w koszyku Stripe</div>
+      <button type="button" class="btn btn-outline btn-sm">Kup dostęp</button>
+    </div>
+  </div>
+
+  <p class="coming-soon-note" id="checkoutNote" style="display:none;"></p>
+</main>
+
+<footer>
+  &copy; 2026 Protokoły Pomiarowe Grid. Wszystkie prawa zastrzeżone.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth-guard.js"></script>
+<script>
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var target = params.get('protocol');
+  if (target){
+    var card = document.querySelector('.protocol-card[data-protocol="' + target + '"]');
+    if (card){
+      card.classList.add('is-target');
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  var checkoutStatus = params.get('checkout');
+  var note = document.getElementById('checkoutNote');
+  if (checkoutStatus === 'cancel' && note){
+    note.textContent = 'Płatność została anulowana. Możesz spróbować ponownie w dowolnym momencie.';
+    note.style.display = 'block';
+  }
+
+  function startCheckout(kind, protocolId, btn){
+    var c = window.RS_AUTH && window.RS_AUTH.getClient();
+    if (!c) return;
+    var originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Ładowanie...';
+
+    c.auth.getSession().then(function(res){
+      var session = res.data && res.data.session;
+      if (!session){
+        window.location.href = 'login.html?redirect=' + encodeURIComponent('pricing.html');
+        return;
+      }
+      fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + session.access_token
+        },
+        body: JSON.stringify({ kind: kind, protocol_id: protocolId })
+      }).then(function(r){ return r.json(); }).then(function(data){
+        if (data.url){
+          window.location.href = data.url;
+        } else {
+          alert(data.error || 'Nie udało się rozpocząć płatności.');
+          btn.disabled = false;
+          btn.textContent = originalText;
+        }
+      }).catch(function(){
+        alert('Błąd połączenia z serwerem płatności. Spróbuj ponownie później.');
+        btn.disabled = false;
+        btn.textContent = originalText;
+      });
+    });
+  }
+
+  var subBtn = document.getElementById('subscribeBtn');
+  if (subBtn){
+    subBtn.addEventListener('click', function(){ startCheckout('subscription', null, subBtn); });
+  }
+
+  document.querySelectorAll('.protocol-card').forEach(function(card){
+    var btn = card.querySelector('button');
+    var protocolId = card.dataset.protocol;
+    if (btn){
+      btn.addEventListener('click', function(){ startCheckout('protocol', protocolId, btn); });
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

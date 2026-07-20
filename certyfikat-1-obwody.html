@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harmonogram obwodów — Protokół Kontrolno-Pomiarowy odbioru nowej instalacji elektrycznej | Protokoły Pomiarowe Grid</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .action-bar{
+    position:sticky;
+    top:65px;
+    z-index:40;
+    background:rgba(255,255,255,0.95);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .action-bar-wrap{
+    max-width:1300px;
+    margin:0 auto;
+    padding:14px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .action-bar h1{
+    font-size:16px;
+    font-weight:700;
+  }
+  .action-bar .subtitle{
+    font-size:12px;
+    color:var(--text-muted);
+    margin-top:2px;
+  }
+  .action-bar .back{
+    font-size:13px;
+    color:var(--text-muted);
+    text-decoration:none;
+    display:block;
+    margin-bottom:2px;
+  }
+  .action-bar .back:hover{color:var(--red);}
+  .action-buttons{display:flex; gap:10px; flex-wrap:wrap;}
+  .btn-sm{padding:8px 14px; font-size:13px; border-radius:7px;}
+
+  .save-status{
+    max-width:1300px;
+    margin:14px auto 0;
+    padding:0 24px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .save-status .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:var(--text-muted);
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    padding:6px 14px;
+    border-radius:999px;
+  }
+  .save-status .dot{width:7px;height:7px;border-radius:50%;background:#2ea043;}
+  .save-status .context-pill{color:var(--text-main); font-weight:600;}
+
+  main{
+    position:relative;
+    z-index:1;
+    max-width:1300px;
+    margin:0 auto;
+    padding:24px 24px 100px;
+  }
+
+  .cert-section{
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    margin-bottom:24px;
+    background:var(--bg);
+  }
+  .cert-section-header{
+    background:linear-gradient(135deg, var(--red), var(--red-600));
+    color:#fff;
+    padding:12px 20px;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:0.3px;
+  }
+
+  .rs-table-wrap{padding:16px 20px 20px; overflow-x:auto;}
+  table.rs-table{width:100%; border-collapse:collapse; min-width:560px;}
+  table.rs-table th{
+    text-align:left;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:0.4px;
+    color:var(--text-muted);
+    padding:0 8px 8px;
+    font-weight:700;
+  }
+  table.rs-table td{padding:5px 8px;}
+  table.rs-table td input[type=text], table.rs-table td input[type=date], table.rs-table td select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:8px 9px;
+    font-size:13.5px;
+    font-family:inherit;
+    background:#fff;
+  }
+  table.rs-table .col-del{width:36px;}
+  table.circuit-table{min-width:1180px;}
+  table.circuit-table th, table.circuit-table td{white-space:nowrap;}
+  table.circuit-table .col-c-desc{width:16%;}
+  table.circuit-table td select, table.circuit-table td input{min-width:88px;}
+
+  .rs-table-remove{
+    background:none;
+    border:1px solid var(--line);
+    border-radius:7px;
+    width:32px;height:32px;
+    color:var(--text-muted);
+    cursor:pointer;
+    font-size:14px;
+    transition:all .15s ease;
+  }
+  .rs-table-remove:hover{border-color:var(--red); color:var(--red);}
+  .rs-table-add{margin-top:4px;}
+
+  .hint{
+    font-size:12px;
+    color:var(--text-muted);
+    margin-top:2px;
+    padding:0 20px 20px;
+  }
+
+  @page{
+    size:landscape;
+  }
+  .watermark-overlay{display:none;}
+  @media print{
+    header, .action-bar, .save-status, .circuit-bg, footer, .rs-table-remove, .rs-table-add{display:none !important;}
+    body{padding:0; font-size:9px;}
+    main{padding:0; max-width:100%;}
+    .cert-section{break-inside:avoid; border-color:#ccc;}
+    table.rs-table td input, table.rs-table td select{border-color:#999;}
+    .rs-table-wrap{overflow:visible; padding:4px 4px 6px;}
+    table.circuit-table{min-width:0; width:100%; table-layout:fixed;}
+    table.circuit-table th, table.circuit-table td{white-space:normal; word-break:break-word; overflow-wrap:break-word;}
+    table.rs-table th{font-size:6.5px; padding:0 2px 3px;}
+    table.rs-table td{padding:1px 2px;}
+    table.circuit-table td select, table.circuit-table td input{
+      min-width:0; width:100%; font-size:7.5px; padding:2px 3px;
+    }
+    .watermark-overlay{
+      display:block;
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      pointer-events:none;
+      background-repeat:repeat;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="circuit-bg"></div>
+<div class="watermark-overlay" id="printWatermark"></div>
+
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo">
+      <div class="bolt">
+        <svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+      </div>
+      <div>Protokoły Pomiarowe <span class="rs">Grid</span></div>
+    </a>
+    <div class="auth-buttons">
+      <a href="#" class="btn btn-outline">Zaloguj się</a>
+      <a href="#" class="btn btn-solid">Zarejestruj się</a>
+    </div>
+  </div>
+</header>
+
+<div class="action-bar">
+  <div class="action-bar-wrap">
+    <div>
+      <a href="certyfikat-1.html" class="back">← Wróć do protokołu</a>
+      <h1>Harmonogram obwodów i wyniki pomiarów</h1>
+      <p class="subtitle">Załącznik do: Protokół Kontrolno-Pomiarowy odbioru nowej instalacji elektrycznej</p>
+    </div>
+    <div class="action-buttons">
+      <button type="button" class="btn btn-outline btn-sm" id="clearBtn">Wyczyść tabelę</button>
+      <button type="button" class="btn btn-solid btn-sm" id="printBtn">Drukuj / Zapisz jako PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="save-status">
+  <span class="pill"><span class="dot"></span> Dane zapisują się automatycznie w tej przeglądarce</span>
+  <span class="pill context-pill" id="contextPill">Uzupełnij numer protokołu i adres instalacji w głównym formularzu</span>
+</div>
+
+<main>
+
+  <div class="cert-section">
+    <div class="cert-section-header">Harmonogram obwodów i wyniki pomiarów</div>
+    <div class="rs-table-wrap">
+      <table class="rs-table circuit-table">
+        <thead>
+          <tr>
+            <th class="col-c-desc">Obwód (opis)</th>
+            <th class="col-c-csa">Przekrój [mm²]</th>
+            <th class="col-c-mcb-type">Charakterystyka</th>
+            <th class="col-c-mcb-rating">Zabezpieczenie [A]</th>
+            <th class="col-c-rcd-type">Rodzaj RCD</th>
+            <th class="col-c-rcd-in">RCD I∆n [mA]</th>
+            <th class="col-c-continuity">Ciągłość PE [Ω]</th>
+            <th class="col-c-insulation">Izolacja [MΩ]</th>
+            <th class="col-c-zs">Zs [Ω]</th>
+            <th class="col-c-rcd-time">Czas RCD [ms]</th>
+            <th class="col-c-result">Wynik</th>
+            <th class="col-del"></th>
+          </tr>
+        </thead>
+        <tbody id="circuitBody"></tbody>
+      </table>
+      <button type="button" class="btn btn-outline btn-sm rs-table-add" id="circuitAddBtn">+ Dodaj obwód</button>
+    </div>
+    <p class="hint">Ta strona to załącznik do protokołu — dane obwodów są powiązane z protokołem, ale przechowywane osobno, zgodnie z wymaganiami normy PN-HD 60364-6.</p>
+  </div>
+
+</main>
+
+<footer>
+  &copy; 2026 Protokoły Pomiarowe Grid. Wszystkie prawa zastrzeżone.
+</footer>
+
+<script>
+(function(){
+  var CIRCUIT_KEY = 'rs-certyfikat-1-circuits';
+  var MAIN_KEY = 'rs-certyfikat-1';
+  var circuitBody = document.getElementById('circuitBody');
+
+  function escapeXml(s){
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function buildWatermark(){
+    var pn = '';
+    var raw = localStorage.getItem(MAIN_KEY);
+    if (raw){
+      try { pn = JSON.parse(raw).protocol_number || ''; } catch(e){}
+    }
+    var text = pn ? ('GRID · ' + pn) : 'GRID';
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180">' +
+      '<text x="160" y="95" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="rgba(0,0,0,0.07)" text-anchor="middle" transform="rotate(-30 160 95)">' + escapeXml(text) + '</text>' +
+      '</svg>';
+    var url = 'data:image/svg+xml,' + encodeURIComponent(svg);
+    var el = document.getElementById('printWatermark');
+    if (el) el.style.backgroundImage = 'url("' + url + '")';
+  }
+
+  window.addEventListener('beforeprint', buildWatermark);
+
+  function opts(list, current){
+    return list.map(function(v){
+      return '<option value="' + v + '"' + (v === current ? ' selected' : '') + '>' + v + '</option>';
+    }).join('');
+  }
+
+  var CSA_OPTS = ['', '1.5', '2.5', '4', '6', '10', '16', '25'];
+  var MCB_TYPE_OPTS = ['', 'B', 'C', 'D', 'K', 'Z'];
+  var MCB_RATING_OPTS = ['', '6', '10', '13', '16', '20', '25', '32', '40', '50', '63', '80', '100'];
+  var RCD_TYPE_OPTS = ['', 'Brak', 'AC', 'A', 'F', 'B'];
+  var RCD_IN_OPTS = ['', '10', '30', '100', '300', '500'];
+  var RESULT_OPTS = ['', '✓', 'X'];
+
+  function addCircuitRow(rowData){
+    rowData = rowData || {};
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><input type="text" class="c-desc" placeholder="np. Gniazda kuchnia"></td>' +
+      '<td><select class="c-csa">' + opts(CSA_OPTS, rowData.csa) + '</select></td>' +
+      '<td><select class="c-mcbtype">' + opts(MCB_TYPE_OPTS, rowData.mcbtype) + '</select></td>' +
+      '<td><select class="c-mcbrating">' + opts(MCB_RATING_OPTS, rowData.mcbrating) + '</select></td>' +
+      '<td><select class="c-rcdtype">' + opts(RCD_TYPE_OPTS, rowData.rcdtype) + '</select></td>' +
+      '<td><select class="c-rcdin">' + opts(RCD_IN_OPTS, rowData.rcdin) + '</select></td>' +
+      '<td><input type="text" class="c-continuity" placeholder="Ω"></td>' +
+      '<td><input type="text" class="c-insulation" placeholder="MΩ"></td>' +
+      '<td><input type="text" class="c-zs" placeholder="Ω"></td>' +
+      '<td><input type="text" class="c-rcdtime" placeholder="ms"></td>' +
+      '<td><select class="c-result">' + opts(RESULT_OPTS, rowData.result) + '</select></td>' +
+      '<td><button type="button" class="rs-table-remove" title="Usuń wiersz">✕</button></td>';
+    tr.querySelector('.c-desc').value = rowData.desc || '';
+    tr.querySelector('.c-continuity').value = rowData.continuity || '';
+    tr.querySelector('.c-insulation').value = rowData.insulation || '';
+    tr.querySelector('.c-zs').value = rowData.zs || '';
+    tr.querySelector('.c-rcdtime').value = rowData.rcdtime || '';
+    tr.querySelector('.rs-table-remove').addEventListener('click', function(){
+      tr.remove();
+      saveCircuits();
+    });
+    tr.addEventListener('input', saveCircuits);
+    tr.addEventListener('change', saveCircuits);
+    circuitBody.appendChild(tr);
+  }
+
+  function saveCircuits(){
+    var rows = [];
+    circuitBody.querySelectorAll('tr').forEach(function(tr){
+      rows.push({
+        desc: tr.querySelector('.c-desc').value,
+        csa: tr.querySelector('.c-csa').value,
+        mcbtype: tr.querySelector('.c-mcbtype').value,
+        mcbrating: tr.querySelector('.c-mcbrating').value,
+        rcdtype: tr.querySelector('.c-rcdtype').value,
+        rcdin: tr.querySelector('.c-rcdin').value,
+        continuity: tr.querySelector('.c-continuity').value,
+        insulation: tr.querySelector('.c-insulation').value,
+        zs: tr.querySelector('.c-zs').value,
+        rcdtime: tr.querySelector('.c-rcdtime').value,
+        result: tr.querySelector('.c-result').value
+      });
+    });
+    localStorage.setItem(CIRCUIT_KEY, JSON.stringify(rows));
+  }
+
+  function loadCircuits(){
+    var raw = localStorage.getItem(CIRCUIT_KEY);
+    var rows = [];
+    if (raw){
+      try { rows = JSON.parse(raw); } catch(e){ rows = []; }
+    }
+    if (!rows.length){
+      addCircuitRow(); addCircuitRow(); addCircuitRow(); addCircuitRow(); addCircuitRow();
+    } else {
+      rows.forEach(addCircuitRow);
+    }
+  }
+
+  function loadContext(){
+    var raw = localStorage.getItem(MAIN_KEY);
+    if (!raw) return;
+    var data;
+    try { data = JSON.parse(raw); } catch(e){ return; }
+    var parts = [];
+    if (data.protocol_number) parts.push('Protokół nr: ' + data.protocol_number);
+    if (data.site_address) parts.push('Instalacja: ' + data.site_address);
+    if (parts.length) document.getElementById('contextPill').textContent = parts.join(' · ');
+  }
+
+  document.getElementById('circuitAddBtn').addEventListener('click', function(){
+    addCircuitRow();
+    saveCircuits();
+  });
+
+  loadCircuits();
+  loadContext();
+  buildWatermark();
+
+  document.getElementById('clearBtn').addEventListener('click', function(){
+    if (!confirm('Wyczyścić cały harmonogram obwodów?')) return;
+    localStorage.removeItem(CIRCUIT_KEY);
+    circuitBody.innerHTML = '';
+    addCircuitRow(); addCircuitRow(); addCircuitRow(); addCircuitRow(); addCircuitRow();
+  });
+
+  document.getElementById('printBtn').addEventListener('click', function(){
+    window.print();
+  });
+})();
+</script>
+
+</body>
+</html>
