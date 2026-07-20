@@ -16,7 +16,7 @@ function readRawBody(req) {
 }
 
 async function upsertProtocolEntitlement(userId, protocolId, stripeCustomerId) {
-  const { data: existing } = await supabaseAdmin
+  const { data: existing, error: selectError } = await supabaseAdmin
     .from('entitlements')
     .select('id')
     .eq('user_id', userId)
@@ -24,9 +24,14 @@ async function upsertProtocolEntitlement(userId, protocolId, stripeCustomerId) {
     .eq('protocol_id', protocolId)
     .eq('status', 'active');
 
+  if (selectError) {
+    console.error('Błąd sprawdzania istniejącego entitlementu (protocol):', selectError);
+    throw selectError;
+  }
+
   if (existing && existing.length > 0) return;
 
-  await supabaseAdmin.from('entitlements').insert({
+  const { error: insertError } = await supabaseAdmin.from('entitlements').insert({
     user_id: userId,
     kind: 'protocol',
     protocol_id: protocolId,
@@ -34,24 +39,38 @@ async function upsertProtocolEntitlement(userId, protocolId, stripeCustomerId) {
     stripe_customer_id: stripeCustomerId,
     current_period_end: null
   });
+
+  if (insertError) {
+    console.error('Błąd zapisu entitlementu (protocol):', insertError, { userId, protocolId, stripeCustomerId });
+    throw insertError;
+  }
 }
 
 async function upsertSubscriptionEntitlement(userId, stripeSubscriptionId, stripeCustomerId) {
   const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
   const periodEnd = new Date(subscription.current_period_end * 1000).toISOString();
 
-  const { data: existing } = await supabaseAdmin
+  const { data: existing, error: selectError } = await supabaseAdmin
     .from('entitlements')
     .select('id')
     .eq('stripe_subscription_id', stripeSubscriptionId);
 
+  if (selectError) {
+    console.error('Błąd sprawdzania istniejącego entitlementu (subscription):', selectError);
+    throw selectError;
+  }
+
   if (existing && existing.length > 0) {
-    await supabaseAdmin
+    const { error: updateError } = await supabaseAdmin
       .from('entitlements')
       .update({ status: 'active', current_period_end: periodEnd, stripe_customer_id: stripeCustomerId })
       .eq('stripe_subscription_id', stripeSubscriptionId);
+    if (updateError) {
+      console.error('Błąd aktualizacji entitlementu (subscription):', updateError);
+      throw updateError;
+    }
   } else {
-    await supabaseAdmin.from('entitlements').insert({
+    const { error: insertError } = await supabaseAdmin.from('entitlements').insert({
       user_id: userId,
       kind: 'subscription',
       protocol_id: null,
@@ -60,6 +79,10 @@ async function upsertSubscriptionEntitlement(userId, stripeSubscriptionId, strip
       stripe_subscription_id: stripeSubscriptionId,
       current_period_end: periodEnd
     });
+    if (insertError) {
+      console.error('Błąd zapisu entitlementu (subscription):', insertError, { userId, stripeSubscriptionId, stripeCustomerId });
+      throw insertError;
+    }
   }
 }
 
@@ -93,6 +116,8 @@ module.exports = async (req, res) => {
           await upsertProtocolEntitlement(userId, protocolId, session.customer);
         } else if (userId && kind === 'subscription' && session.subscription) {
           await upsertSubscriptionEntitlement(userId, session.subscription, session.customer);
+        } else {
+          console.error('checkout.session.completed: brak wymaganych metadanych, pomijam.', metadata);
         }
         break;
       }
