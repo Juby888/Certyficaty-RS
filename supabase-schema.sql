@@ -62,3 +62,13 @@ create policy "Użytkownik widzi własne uprawnienia"
 
 create index if not exists entitlements_user_id_idx on entitlements(user_id);
 create index if not exists entitlements_protocol_idx on entitlements(user_id, protocol_id);
+
+-- Bez tego GRANT rola "authenticated" dostaje 403 (permission denied) z PostgREST
+-- na każdym zapytaniu do tej tabeli, niezależnie od polityk RLS powyżej.
+grant select on entitlements to authenticated;
+grant select, insert on profiles to authenticated;
+
+-- "service_role" pomija RLS, ale wciąż potrzebuje bazowych uprawnień GRANT na tabelę
+-- (bypassrls omija tylko polityki, nie podstawowe uprawnienia SQL).
+grant select, insert, update on entitlements to service_role;
+grant select, insert, update on profiles to service_role;
