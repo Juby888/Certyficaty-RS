@@ -29,21 +29,26 @@ async function upsertProtocolEntitlement(userId, protocolId, stripeCustomerId) {
     throw selectError;
   }
 
-  if (existing && existing.length > 0) return;
+  if (existing && existing.length > 0) {
+    console.log('DEBUG: entitlement już istnieje, pomijam insert.', { userId, protocolId });
+    return;
+  }
 
-  const { error: insertError } = await supabaseAdmin.from('entitlements').insert({
+  const { data: inserted, error: insertError } = await supabaseAdmin.from('entitlements').insert({
     user_id: userId,
     kind: 'protocol',
     protocol_id: protocolId,
     status: 'active',
     stripe_customer_id: stripeCustomerId,
     current_period_end: null
-  });
+  }).select();
 
   if (insertError) {
     console.error('Błąd zapisu entitlementu (protocol):', insertError, { userId, protocolId, stripeCustomerId });
     throw insertError;
   }
+
+  console.log('DEBUG: zapisano entitlement (protocol):', JSON.stringify(inserted));
 }
 
 async function upsertSubscriptionEntitlement(userId, stripeSubscriptionId, stripeCustomerId) {
@@ -111,6 +116,8 @@ module.exports = async (req, res) => {
         const userId = metadata.user_id;
         const kind = metadata.kind;
         const protocolId = metadata.protocol_id;
+
+        console.log('DEBUG: checkout.session.completed metadata=', JSON.stringify(metadata), 'customer=', session.customer, 'subscription=', session.subscription);
 
         if (userId && kind === 'protocol' && protocolId) {
           await upsertProtocolEntitlement(userId, protocolId, session.customer);
