@@ -1,3 +1,4 @@
+// Stripe webhook handler
 const Stripe = require('stripe');
 const { createClient } = require('@supabase/supabase-js');
 
