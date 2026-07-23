@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O nas | Protokoły Pomiarowe Grid</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  main{
+    position:relative;
+    z-index:1;
+    max-width:820px;
+    margin:0 auto;
+    padding:60px 24px 100px;
+  }
+  main h1{font-size:32px; font-weight:800; margin-bottom:24px; text-align:center;}
+  main p{font-size:16px; color:var(--text-main); margin-bottom:20px; line-height:1.7;}
+  .lead{font-size:18px; color:var(--text-muted); text-align:center; margin-bottom:40px;}
+  .badges{display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:44px;}
+  .badge{
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:8px 18px;
+    font-size:13.5px;
+    font-weight:700;
+    color:var(--red);
+  }
+</style>
+</head>
+<body>
+
+<div class="circuit-bg"></div>
+
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo">
+      <div class="bolt">
+        <svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+      </div>
+      <div>Protokoły Pomiarowe <span class="rs">Grid</span></div>
+    </a>
+    <nav class="links">
+      <a href="index.html#tiles">Protokoły</a>
+      <a href="about.html">O nas</a>
+      <a href="contact.html">Kontakt</a>
+    </nav>
+    <div class="auth-buttons">
+      <a href="login.html" class="btn btn-outline">Zaloguj się</a>
+      <a href="register.html" class="btn btn-solid">Zarejestruj się</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1>O nas</h1>
+  <p class="lead">Grid RS to protokoły pomiarowe zaprojektowane przez elektryków dla elektryków.</p>
+
+  <div class="badges">
+    <div class="badge">Firma założona w 2026 roku</div>
+    <div class="badge">Ponad 30 lat doświadczenia w elektryce</div>
+  </div>
+
+  <p>Firma Grid RS powstała w 2026 roku — ale stoją za nią elektrycy, którzy w tym zawodzie pracują od ponad 30 lat. Przez te wszystkie lata na budowach, przy odbiorach instalacji i przeglądach okresowych, najbardziej dokuczającą częścią pracy nigdy nie były same pomiary, tylko dokumentacja, która musi po nich powstać: papierowe formularze, ręczne przepisywanie tych samych danych po raz kolejny, pilnowanie, czy protokół na pewno spełnia wymagania aktualnej normy.</p>
+
+  <p>Dlatego postanowiliśmy zbudować narzędzie, którego sami zawsze nam brakowało. Grid powstał z myślą o tym, żeby wypełnienie protokołu pomiarowego zajmowało minuty zamiast godzin — bez papieru, bez gubienia kartek, bez ręcznego liczenia zgodności z normą za każdym razem od nowa. Każdy protokół w serwisie jest skonstruowany tak, aby prowadzić elektryka krok po kroku przez dokładnie te pola, które są wymagane, i nic ponadto.</p>
+
+  <p>Naszym celem jest, żeby dokumentacja przestała być najbardziej znienawidzoną częścią tego zawodu — a elektrycy mogli poświęcić więcej czasu na to, co naprawdę ważne: rzetelną pracę na obiekcie.</p>
+</main>
+
+<footer>
+  &copy; 2026 Protokoły Pomiarowe Grid. Wszystkie prawa zastrzeżone.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth-guard.js"></script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kontakt | Protokoły Pomiarowe Grid</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  main{
+    position:relative;
+    z-index:1;
+    max-width:640px;
+    margin:0 auto;
+    padding:60px 24px 100px;
+  }
+  main h1{font-size:32px; font-weight:800; margin-bottom:12px; text-align:center;}
+  main > p.lead{font-size:15.5px; color:var(--text-muted); text-align:center; margin-bottom:36px;}
+
+  .contact-form{
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:32px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.04);
+  }
+  .field{margin-bottom:18px;}
+  .field label{display:block; font-size:13.5px; font-weight:700; margin-bottom:6px;}
+  .field input, .field textarea{
+    width:100%;
+    padding:11px 13px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-size:14.5px;
+    font-family:inherit;
+    color:var(--text-main);
+    background:var(--bg);
+  }
+  .field input:focus, .field textarea:focus{outline:none; border-color:var(--red);}
+  .field textarea{resize:vertical; min-height:130px;}
+
+  .form-status{
+    display:none;
+    margin-top:16px;
+    padding:12px 14px;
+    border-radius:10px;
+    font-size:13.5px;
+    text-align:center;
+  }
+  .form-status.ok{display:block; background:#eafaf0; border:1px solid #b9e8c9; color:#146c3a;}
+  .form-status.err{display:block; background:#fdecec; border:1px solid #f3b9b9; color:#8a1f1f;}
+</style>
+</head>
+<body>
+
+<div class="circuit-bg"></div>
+
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo">
+      <div class="bolt">
+        <svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+      </div>
+      <div>Protokoły Pomiarowe <span class="rs">Grid</span></div>
+    </a>
+    <nav class="links">
+      <a href="index.html#tiles">Protokoły</a>
+      <a href="about.html">O nas</a>
+      <a href="contact.html">Kontakt</a>
+    </nav>
+    <div class="auth-buttons">
+      <a href="login.html" class="btn btn-outline">Zaloguj się</a>
+      <a href="register.html" class="btn btn-solid">Zarejestruj się</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1>Kontakt</h1>
+  <p class="lead">Masz pytanie o protokoły albo o dostęp do serwisu? Napisz do nas — odpowiadamy najszybciej jak możemy.</p>
+
+  <form class="contact-form" id="contactForm" action="https://formsubmit.co/gridrs@gmail.com" method="POST">
+    <input type="hidden" name="_subject" value="Nowa wiadomość ze strony Grid RS">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="text" name="_honey" style="display:none">
+
+    <div class="field">
+      <label for="contactName">Imię i nazwisko</label>
+      <input type="text" id="contactName" name="Imię i nazwisko" required>
+    </div>
+    <div class="field">
+      <label for="contactEmail">Twój e-mail</label>
+      <input type="email" id="contactEmail" name="E-mail" required>
+    </div>
+    <div class="field">
+      <label for="contactMessage">Wiadomość</label>
+      <textarea id="contactMessage" name="Wiadomość" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-solid btn-lg" id="contactSubmitBtn" style="width:100%;">Wyślij wiadomość</button>
+
+    <div class="form-status" id="formStatus"></div>
+  </form>
+</main>
+
+<footer>
+  &copy; 2026 Protokoły Pomiarowe Grid. Wszystkie prawa zastrzeżone.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth-guard.js"></script>
+<script>
+(function(){
+  var form = document.getElementById('contactForm');
+  var btn = document.getElementById('contactSubmitBtn');
+  var status = document.getElementById('formStatus');
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = 'Wysyłanie...';
+    status.className = 'form-status';
+    status.textContent = '';
+
+    fetch(form.action, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: new FormData(form)
+    }).then(function(res){
+      if (res.ok){
+        status.className = 'form-status ok';
+        status.textContent = 'Wiadomość wysłana. Odezwiemy się najszybciej jak to możliwe.';
+        form.reset();
+      } else {
+        throw new Error('bad status');
+      }
+    }).catch(function(){
+      status.className = 'form-status err';
+      status.textContent = 'Nie udało się wysłać wiadomości. Spróbuj ponownie później albo napisz bezpośrednio na gridrs@gmail.com.';
+    }).finally(function(){
+      btn.disabled = false;
+      btn.textContent = 'Wyślij wiadomość';
+    });
+  });
+})();
+</script>
+</body>
+</html>
