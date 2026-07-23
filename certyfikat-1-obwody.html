@@ -90,6 +90,43 @@
     letter-spacing:0.3px;
   }
 
+  .board-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .board-header .board-name-input{
+    flex:1;
+    min-width:200px;
+    background:rgba(255,255,255,0.15);
+    border:1px solid rgba(255,255,255,0.35);
+    color:#fff;
+    border-radius:7px;
+    padding:8px 11px;
+    font-size:13.5px;
+    font-weight:700;
+    font-family:inherit;
+  }
+  .board-header .board-name-input::placeholder{color:rgba(255,255,255,0.75);}
+  .board-header .board-name-input:focus{outline:none; border-color:#fff;}
+  .board-remove-btn{
+    background:none;
+    border:1px solid rgba(255,255,255,0.4);
+    color:#fff;
+    border-radius:7px;
+    padding:7px 13px;
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s ease;
+  }
+  .board-remove-btn:hover{background:rgba(255,255,255,0.18);}
+
+  .board-add-wrap{margin-bottom:24px;}
+
   .rs-table-wrap{padding:16px 20px 20px; overflow-x:auto;}
   table.rs-table{width:100%; border-collapse:collapse; min-width:560px;}
   table.rs-table th{
@@ -112,7 +149,7 @@
     background:#fff;
   }
   table.rs-table .col-del{width:36px;}
-  table.circuit-table{min-width:1180px;}
+  table.circuit-table{min-width:1240px;}
   table.circuit-table th, table.circuit-table td{white-space:nowrap;}
   table.circuit-table .col-c-desc{width:16%;}
   table.circuit-table td select, table.circuit-table td input{min-width:88px;}
@@ -142,10 +179,17 @@
   }
   .watermark-overlay{display:none;}
   @media print{
-    header, .action-bar, .save-status, .circuit-bg, footer, .rs-table-remove, .rs-table-add{display:none !important;}
+    header, .action-bar, .save-status, .circuit-bg, footer, .rs-table-remove, .rs-table-add, .board-remove-btn, .board-add-wrap{display:none !important;}
     body{padding:0; font-size:9px;}
     main{padding:0; max-width:100%;}
     .cert-section{break-inside:avoid; border-color:#ccc;}
+    .board-name-input{
+      background:transparent !important;
+      border:none !important;
+      color:#fff !important;
+      padding:0 !important;
+      font-weight:700;
+    }
     table.rs-table td input, table.rs-table td select{border-color:#999;}
     .rs-table-wrap{overflow:visible; padding:4px 4px 6px;}
     table.circuit-table{min-width:0; width:100%; table-layout:fixed;}
@@ -209,34 +253,13 @@
 
 <main>
 
-  <div class="cert-section">
-    <div class="cert-section-header">Harmonogram obwodów i wyniki pomiarów</div>
-    <div class="rs-table-wrap">
-      <table class="rs-table circuit-table">
-        <thead>
-          <tr>
-            <th class="col-c-num">Nr obwodu</th>
-            <th class="col-c-desc">Obwód (opis)</th>
-            <th class="col-c-csa">Przekrój [mm²]</th>
-            <th class="col-c-mcb-type">Charakterystyka</th>
-            <th class="col-c-mcb-rating">Zabezpieczenie [A]</th>
-            <th class="col-c-rcd-type">Rodzaj RCD</th>
-            <th class="col-c-rcd-in">RCD I∆n [mA]</th>
-            <th class="col-c-continuity">Ciągłość PE [Ω]</th>
-            <th class="col-c-itest">Nap. probiercze [V]</th>
-            <th class="col-c-insulation">Izolacja [MΩ]</th>
-            <th class="col-c-zs">Zs [Ω]</th>
-            <th class="col-c-rcd-time">Czas RCD [ms]</th>
-            <th class="col-c-result">Wynik</th>
-            <th class="col-del"></th>
-          </tr>
-        </thead>
-        <tbody id="circuitBody"></tbody>
-      </table>
-      <button type="button" class="btn btn-outline btn-sm rs-table-add" id="circuitAddBtn">+ Dodaj obwód</button>
-    </div>
-    <p class="hint">Ta strona to załącznik do protokołu — dane obwodów są powiązane z protokołem, ale przechowywane osobno, zgodnie z wymaganiami normy PN-HD 60364-6.</p>
+  <div id="boardsContainer"></div>
+
+  <div class="board-add-wrap">
+    <button type="button" class="btn btn-outline btn-sm" id="boardAddBtn">+ Dodaj rozdzielnicę</button>
   </div>
+
+  <p class="hint" style="padding:0 0 20px;">Każda rozdzielnica (np. główna, piętro, poddasze, dodatkowa) ma własny, nazwany harmonogram obwodów. Dane są powiązane z protokołem, ale przechowywane osobno, zgodnie z wymaganiami normy PN-HD 60364-6.</p>
 
 </main>
 
@@ -248,7 +271,7 @@
 (function(){
   var CIRCUIT_KEY = 'rs-certyfikat-1-circuits';
   var MAIN_KEY = 'rs-certyfikat-1';
-  var circuitBody = document.getElementById('circuitBody');
+  var boardsContainer = document.getElementById('boardsContainer');
 
   function escapeXml(s){
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -285,7 +308,7 @@
   var ITEST_OPTS = ['', '250', '500', '1000'];
   var RESULT_OPTS = ['', '✓', 'X'];
 
-  function addCircuitRow(rowData){
+  function makeCircuitRow(rowData){
     rowData = rowData || {};
     var tr = document.createElement('tr');
     tr.innerHTML =
@@ -311,46 +334,108 @@
     tr.querySelector('.c-rcdtime').value = rowData.rcdtime || '';
     tr.querySelector('.rs-table-remove').addEventListener('click', function(){
       tr.remove();
-      saveCircuits();
+      saveAll();
     });
-    tr.addEventListener('input', saveCircuits);
-    tr.addEventListener('change', saveCircuits);
-    circuitBody.appendChild(tr);
+    tr.addEventListener('input', saveAll);
+    tr.addEventListener('change', saveAll);
+    return tr;
   }
 
-  function saveCircuits(){
-    var rows = [];
-    circuitBody.querySelectorAll('tr').forEach(function(tr){
-      rows.push({
-        num: tr.querySelector('.c-num').value,
-        desc: tr.querySelector('.c-desc').value,
-        csa: tr.querySelector('.c-csa').value,
-        mcbtype: tr.querySelector('.c-mcbtype').value,
-        mcbrating: tr.querySelector('.c-mcbrating').value,
-        rcdtype: tr.querySelector('.c-rcdtype').value,
-        rcdin: tr.querySelector('.c-rcdin').value,
-        continuity: tr.querySelector('.c-continuity').value,
-        itest: tr.querySelector('.c-itest').value,
-        insulation: tr.querySelector('.c-insulation').value,
-        zs: tr.querySelector('.c-zs').value,
-        rcdtime: tr.querySelector('.c-rcdtime').value,
-        result: tr.querySelector('.c-result').value
+  function createBoardSection(boardData){
+    boardData = boardData || {};
+    var section = document.createElement('div');
+    section.className = 'cert-section board-section';
+    section.innerHTML =
+      '<div class="cert-section-header board-header">' +
+        '<input type="text" class="board-name-input" placeholder="np. Rozdzielnica główna RG">' +
+        '<button type="button" class="board-remove-btn">✕ Usuń rozdzielnicę</button>' +
+      '</div>' +
+      '<div class="rs-table-wrap">' +
+        '<table class="rs-table circuit-table">' +
+          '<thead><tr>' +
+            '<th class="col-c-num">Nr obwodu</th>' +
+            '<th class="col-c-desc">Obwód (opis)</th>' +
+            '<th class="col-c-csa">Przekrój [mm²]</th>' +
+            '<th class="col-c-mcb-type">Charakterystyka</th>' +
+            '<th class="col-c-mcb-rating">Zabezpieczenie [A]</th>' +
+            '<th class="col-c-rcd-type">Rodzaj RCD</th>' +
+            '<th class="col-c-rcd-in">RCD I∆n [mA]</th>' +
+            '<th class="col-c-continuity">Ciągłość PE [Ω]</th>' +
+            '<th class="col-c-itest">Nap. probiercze [V]</th>' +
+            '<th class="col-c-insulation">Izolacja [MΩ]</th>' +
+            '<th class="col-c-zs">Zs [Ω]</th>' +
+            '<th class="col-c-rcd-time">Czas RCD [ms]</th>' +
+            '<th class="col-c-result">Wynik</th>' +
+            '<th class="col-del"></th>' +
+          '</tr></thead>' +
+          '<tbody class="circuitBody"></tbody>' +
+        '</table>' +
+        '<button type="button" class="btn btn-outline btn-sm rs-table-add board-add-circuit-btn">+ Dodaj obwód</button>' +
+      '</div>';
+
+    section.querySelector('.board-name-input').value = boardData.name || '';
+
+    var tbody = section.querySelector('.circuitBody');
+    var circuits = (boardData.circuits && boardData.circuits.length) ? boardData.circuits : [{}, {}, {}, {}, {}];
+    circuits.forEach(function(c){ tbody.appendChild(makeCircuitRow(c)); });
+
+    section.querySelector('.board-name-input').addEventListener('input', saveAll);
+    section.querySelector('.board-remove-btn').addEventListener('click', function(){
+      if (!confirm('Usunąć tę rozdzielnicę wraz z jej obwodami?')) return;
+      section.remove();
+      saveAll();
+    });
+    section.querySelector('.board-add-circuit-btn').addEventListener('click', function(){
+      tbody.appendChild(makeCircuitRow());
+      saveAll();
+    });
+
+    return section;
+  }
+
+  function saveAll(){
+    var boards = [];
+    boardsContainer.querySelectorAll('.board-section').forEach(function(section){
+      var circuits = [];
+      section.querySelectorAll('.circuitBody tr').forEach(function(tr){
+        circuits.push({
+          num: tr.querySelector('.c-num').value,
+          desc: tr.querySelector('.c-desc').value,
+          csa: tr.querySelector('.c-csa').value,
+          mcbtype: tr.querySelector('.c-mcbtype').value,
+          mcbrating: tr.querySelector('.c-mcbrating').value,
+          rcdtype: tr.querySelector('.c-rcdtype').value,
+          rcdin: tr.querySelector('.c-rcdin').value,
+          continuity: tr.querySelector('.c-continuity').value,
+          itest: tr.querySelector('.c-itest').value,
+          insulation: tr.querySelector('.c-insulation').value,
+          zs: tr.querySelector('.c-zs').value,
+          rcdtime: tr.querySelector('.c-rcdtime').value,
+          result: tr.querySelector('.c-result').value
+        });
+      });
+      boards.push({
+        name: section.querySelector('.board-name-input').value,
+        circuits: circuits
       });
     });
-    localStorage.setItem(CIRCUIT_KEY, JSON.stringify(rows));
+    localStorage.setItem(CIRCUIT_KEY, JSON.stringify(boards));
   }
 
-  function loadCircuits(){
+  function loadAll(){
     var raw = localStorage.getItem(CIRCUIT_KEY);
-    var rows = [];
+    var boards = [];
     if (raw){
-      try { rows = JSON.parse(raw); } catch(e){ rows = []; }
+      try { boards = JSON.parse(raw); } catch(e){ boards = []; }
     }
-    if (!rows.length){
-      addCircuitRow(); addCircuitRow(); addCircuitRow(); addCircuitRow(); addCircuitRow();
-    } else {
-      rows.forEach(addCircuitRow);
+    // Kompatybilność wsteczna: stary format to płaska lista obwodów bez rozdzielnic.
+    if (boards.length && !('circuits' in boards[0]) && !('name' in boards[0])){
+      boards = [{ name: '', circuits: boards }];
     }
+    if (!boards.length){
+      boards = [{ name: '', circuits: [] }];
+    }
+    boards.forEach(function(b){ boardsContainer.appendChild(createBoardSection(b)); });
   }
 
   function loadContext(){
@@ -364,20 +449,20 @@
     if (parts.length) document.getElementById('contextPill').textContent = parts.join(' · ');
   }
 
-  document.getElementById('circuitAddBtn').addEventListener('click', function(){
-    addCircuitRow();
-    saveCircuits();
+  document.getElementById('boardAddBtn').addEventListener('click', function(){
+    boardsContainer.appendChild(createBoardSection());
+    saveAll();
   });
 
-  loadCircuits();
+  loadAll();
   loadContext();
   buildWatermark();
 
   document.getElementById('clearBtn').addEventListener('click', function(){
-    if (!confirm('Wyczyścić cały harmonogram obwodów?')) return;
+    if (!confirm('Wyczyścić cały harmonogram obwodów (wszystkie rozdzielnice)?')) return;
     localStorage.removeItem(CIRCUIT_KEY);
-    circuitBody.innerHTML = '';
-    addCircuitRow(); addCircuitRow(); addCircuitRow(); addCircuitRow(); addCircuitRow();
+    boardsContainer.innerHTML = '';
+    boardsContainer.appendChild(createBoardSection());
   });
 
   document.getElementById('printBtn').addEventListener('click', function(){
