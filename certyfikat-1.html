@@ -544,12 +544,39 @@
       print-color-adjust:exact;
     }
   }
+  #rsPreviewToolbar{
+    display:none;
+    position:fixed;
+    top:0; left:0; right:0;
+    z-index:9998;
+    background:#1a1a1a;
+    color:#fff;
+    padding:10px 20px;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+    box-shadow:0 2px 10px rgba(0,0,0,0.25);
+  }
+  #rsPreviewToolbar .rs-preview-label{font-size:13px; font-weight:700;}
+  #rsPreviewToolbar .rs-preview-actions{display:flex; gap:10px; flex-wrap:wrap;}
+  .rs-preview-btn{border:none; border-radius:7px; padding:8px 16px; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap;}
+  .rs-preview-btn.light{background:#fff; color:#1a1a1a;}
+  .rs-preview-btn.solid{background:var(--red); color:#fff;}
+  body.rs-preview-active{padding-top:56px !important; background:#4b5563 !important;}
 </style>
 </head>
 <body data-protocol-id="certyfikat-1">
 
 <div class="circuit-bg"></div>
 <div class="watermark-overlay" id="printWatermark"></div>
+<div id="rsPreviewToolbar">
+  <span class="rs-preview-label">Podgląd wydruku — tak będzie wyglądał protokół</span>
+  <div class="rs-preview-actions">
+    <button type="button" class="rs-preview-btn light" id="previewCloseBtn">← Wróć do edycji</button>
+    <button type="button" class="rs-preview-btn solid" id="previewPrintBtn">Drukuj / Zapisz jako PDF</button>
+  </div>
+</div>
 
 <header>
   <div class="nav-wrap">
@@ -575,6 +602,7 @@
     </div>
     <div class="action-buttons">
       <button type="button" class="btn btn-outline btn-sm" id="clearBtn">Wyczyść formularz</button>
+      <button type="button" class="btn btn-outline btn-sm" id="previewBtn">Podgląd</button>
       <button type="button" class="btn btn-solid btn-sm" id="printBtn">Drukuj / Zapisz jako PDF</button>
       <button type="button" class="btn btn-outline btn-sm is-disabled" title="Dostępne po uruchomieniu kont i wysyłki e-mail">Wyślij mailem</button>
       <button type="button" class="btn btn-outline btn-sm" id="lockedPdfBtn">Zablokowany PDF</button>
@@ -1458,6 +1486,36 @@
 
   document.getElementById('printBtn').addEventListener('click', function(){
     window.print();
+  });
+
+  var previewToolbar = document.getElementById('rsPreviewToolbar');
+  var previewActive = false;
+
+  function enterPreview(){
+    if (previewActive) return;
+    previewActive = true;
+    window.dispatchEvent(new Event('beforeprint'));
+    applyForcedPrintStyles(1123);
+    document.body.classList.add('rs-preview-active');
+    window.scrollTo(0, 0);
+    previewToolbar.style.display = 'flex';
+  }
+
+  function exitPreview(){
+    if (!previewActive) return;
+    previewActive = false;
+    removeForcedPrintStyles();
+    document.body.classList.remove('rs-preview-active');
+    previewToolbar.style.display = 'none';
+    window.dispatchEvent(new Event('afterprint'));
+  }
+
+  document.getElementById('previewBtn').addEventListener('click', enterPreview);
+  document.getElementById('previewCloseBtn').addEventListener('click', exitPreview);
+  document.getElementById('previewPrintBtn').addEventListener('click', function(){
+    previewToolbar.style.display = 'none';
+    window.print();
+    previewToolbar.style.display = 'flex';
   });
 
   var PDF_PASSWORD_KEY = 'rs-pdf-owner-password';
