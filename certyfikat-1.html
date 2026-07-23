@@ -987,6 +987,7 @@
         <table class="rs-table circuit-table">
           <thead>
             <tr>
+              <th>Nr obwodu</th>
               <th>Obwód (opis)</th>
               <th>Przekrój [mm&sup2;]</th>
               <th>Charakterystyka</th>
@@ -994,6 +995,7 @@
               <th>Rodzaj RCD</th>
               <th>RCD I&Delta;n [mA]</th>
               <th>Ciągłość PE [&Omega;]</th>
+              <th>Nap. probiercze [V]</th>
               <th>Izolacja [M&Omega;]</th>
               <th>Zs [&Omega;]</th>
               <th>Czas RCD [ms]</th>
@@ -1064,27 +1066,50 @@
     var wrap = document.getElementById('printOnlyCircuits');
     var tbody = document.getElementById('printCircuitBody');
     var raw = localStorage.getItem(CIRCUIT_KEY_FOR_PRINT);
-    var rows = [];
+    var boards = [];
     if (raw){
-      try { rows = JSON.parse(raw); } catch(e){ rows = []; }
+      try { boards = JSON.parse(raw); } catch(e){ boards = []; }
     }
-    rows = rows.filter(function(r){
-      return r.desc || r.csa || r.mcbtype || r.mcbrating || r.rcdtype || r.rcdin || r.continuity || r.insulation || r.zs || r.rcdtime || r.result;
+    // Kompatybilność wsteczna: stary format to płaska lista obwodów bez rozdzielnic.
+    if (boards.length && !('circuits' in boards[0]) && !('name' in boards[0])){
+      boards = [{ name: '', circuits: boards }];
+    }
+
+    tbody.innerHTML = '';
+    var hasAnyRow = false;
+
+    boards.forEach(function(board){
+      var circuits = (board.circuits || []).filter(function(r){
+        return r.num || r.desc || r.csa || r.mcbtype || r.mcbrating || r.rcdtype || r.rcdin || r.continuity || r.itest || r.insulation || r.zs || r.rcdtime || r.result;
+      });
+      if (!circuits.length) return;
+      hasAnyRow = true;
+
+      var labelTr = document.createElement('tr');
+      var labelTd = document.createElement('td');
+      labelTd.colSpan = 13;
+      labelTd.textContent = board.name || 'Rozdzielnica';
+      labelTd.style.fontWeight = '700';
+      labelTd.style.background = '#eee';
+      labelTr.appendChild(labelTd);
+      tbody.appendChild(labelTr);
+
+      circuits.forEach(function(r){
+        var tr = document.createElement('tr');
+        [r.num, r.desc, r.csa, r.mcbtype, r.mcbrating, r.rcdtype, r.rcdin, r.continuity, r.itest, r.insulation, r.zs, r.rcdtime, r.result].forEach(function(val){
+          var td = document.createElement('td');
+          td.textContent = val || '—';
+          if (!val && !isRealPrinting) td.style.background = '#c8f0d4';
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
     });
-    if (!rows.length){
+
+    if (!hasAnyRow){
       wrap.style.display = 'none';
       return;
     }
-    tbody.innerHTML = '';
-    rows.forEach(function(r){
-      var tr = document.createElement('tr');
-      [r.desc, r.csa, r.mcbtype, r.mcbrating, r.rcdtype, r.rcdin, r.continuity, r.insulation, r.zs, r.rcdtime, r.result].forEach(function(val){
-        var td = document.createElement('td');
-        td.textContent = val || '—';
-        tr.appendChild(td);
-      });
-      tbody.appendChild(tr);
-    });
     wrap.style.display = '';
   }
 
@@ -1484,8 +1509,12 @@
     renderPrintPhotos();
   });
 
+  var isRealPrinting = false;
+
   document.getElementById('printBtn').addEventListener('click', function(){
+    isRealPrinting = true;
     window.print();
+    isRealPrinting = false;
   });
 
   var previewToolbar = document.getElementById('rsPreviewToolbar');
@@ -1513,9 +1542,11 @@
   document.getElementById('previewBtn').addEventListener('click', enterPreview);
   document.getElementById('previewCloseBtn').addEventListener('click', exitPreview);
   document.getElementById('previewPrintBtn').addEventListener('click', function(){
+    isRealPrinting = true;
     previewToolbar.style.display = 'none';
     window.print();
     previewToolbar.style.display = 'flex';
+    isRealPrinting = false;
   });
 
   var PDF_PASSWORD_KEY = 'rs-pdf-owner-password';
