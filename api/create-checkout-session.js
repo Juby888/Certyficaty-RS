@@ -5,13 +5,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 const PRICES = {
-  subscription: 'price_1TvFOTQek1YQfrapGhDS8kl7',
-  'certyfikat-1': 'price_1TvFURQek1YQfrapuX9xvTTK',
-  'certyfikat-2': 'price_1TvFUuQek1YQfrapsmCQPH8m',
-  'certyfikat-3': 'price_1TvFVHQek1YQfrapT5hK1dD9',
-  'certyfikat-4': 'price_1TvFVdQek1YQfraps0DbR0KH',
-  'certyfikat-5': 'price_1TvFW1Qek1YQfrapkt2oTa07',
-  'certyfikat-6': 'price_1TvFWTQek1YQfraplJON3XI2'
+  subscription: 'price_1TwI2qQfn56rPw2gIbo6GqDT',
+  'certyfikat-1': 'price_1TwI2pQfn56rPw2gGUGfgfdA',
+  'certyfikat-2': 'price_1TwI2pQfn56rPw2gSWF1E1nx',
+  'certyfikat-3': 'price_1TwI2oQfn56rPw2g8HxYmMoW',
+  'certyfikat-4': 'price_1TwI2pQfn56rPw2gNfoaUeNu',
+  'certyfikat-5': 'price_1TwI2pQfn56rPw2gvu2Ik0pv',
+  'certyfikat-6': 'price_1TwI21Qfn56rPw2g8m8yTw3y'
 };
 
 module.exports = async (req, res) => {
