@@ -201,10 +201,7 @@
   .logo-preview img{max-width:100%; max-height:100%; object-fit:contain;}
   .logo-actions{display:flex; gap:8px;}
 
-  .logo-mode-switch{display:flex; gap:16px; margin-bottom:10px; font-size:13px; color:var(--text-main);}
-  .logo-mode-switch label{display:inline-flex; align-items:center; gap:6px; cursor:pointer;}
-  .logo-mode-switch input{accent-color:var(--red);}
-  .logo-mode-panel input#companyNameInput{
+  #companyNameInput{
     max-width:360px;
     border:1px solid var(--line);
     border-radius:8px;
@@ -474,8 +471,7 @@
     .field textarea{min-height:16px;}
     .field:has(textarea),
     .field:has(.pill-group),
-    .field:has(.checkbox-grid),
-    .field:has(.logo-mode-switch){grid-column:1 / -1 !important;}
+    .field:has(.checkbox-grid){grid-column:1 / -1 !important;}
     .pill-group{gap:3px;}
     .pill-group label{padding:2px 7px; font-size:9px;}
     .checkbox-line{font-size:9px; gap:4px;}
@@ -687,25 +683,20 @@
 
     <div class="cert-section-body cols-1 logo-field">
       <div class="field">
-        <label>Logo / nazwa firmy (pojawi się na wydruku)</label>
-        <div class="logo-mode-switch">
-          <label><input type="radio" name="logo_mode" id="logoModeTextRadio" value="text" checked> Wpisz nazwę</label>
-          <label><input type="radio" name="logo_mode" id="logoModeImageRadio" value="image"> Wklej / wgraj logo</label>
-        </div>
-        <div class="logo-mode-panel" id="logoModeTextPanel">
-          <input type="text" id="companyNameInput" placeholder="np. Elektro-Serwis Jan Kowalski">
-        </div>
-        <div class="logo-mode-panel" id="logoModeImagePanel" style="display:none;">
-          <div class="logo-upload">
-            <div class="logo-preview" id="logoPreview">
-              <span class="logo-placeholder">Kliknij, aby dodać plik, albo wklej obraz (Ctrl+V)</span>
-              <img id="logoImg" style="display:none;">
-            </div>
-            <input type="file" accept="image/*" id="logoFileInput" style="display:none;">
-            <div class="logo-actions">
-              <button type="button" class="btn btn-outline btn-sm" id="logoChooseBtn">Wybierz plik</button>
-              <button type="button" class="btn btn-outline btn-sm" id="logoRemoveBtn">Usuń logo</button>
-            </div>
+        <label>Nazwa firmy (pojawi się na wydruku)</label>
+        <input type="text" id="companyNameInput" placeholder="np. Elektro-Serwis Jan Kowalski">
+      </div>
+      <div class="field">
+        <label>Logo firmy (opcjonalnie — pojawi się razem z nazwą na wydruku)</label>
+        <div class="logo-upload">
+          <div class="logo-preview" id="logoPreview">
+            <span class="logo-placeholder">Kliknij, aby dodać plik, albo wklej obraz (Ctrl+V)</span>
+            <img id="logoImg" style="display:none;">
+          </div>
+          <input type="file" accept="image/*" id="logoFileInput" style="display:none;">
+          <div class="logo-actions">
+            <button type="button" class="btn btn-outline btn-sm" id="logoChooseBtn">Wybierz plik</button>
+            <button type="button" class="btn btn-outline btn-sm" id="logoRemoveBtn">Usuń logo</button>
           </div>
         </div>
       </div>
@@ -1123,7 +1114,6 @@
 
   var LOGO_KEY = 'rs-company-logo';
   var NAME_KEY = 'rs-company-name';
-  var MODE_KEY = 'rs-company-logo-mode';
   var logoPreview = document.getElementById('logoPreview');
   var logoImg = document.getElementById('logoImg');
   var logoPlaceholder = logoPreview.querySelector('.logo-placeholder');
@@ -1131,35 +1121,18 @@
   var printHeaderLogos = document.querySelectorAll('.print-header-logo');
   var printHeaderCompanyNames = document.querySelectorAll('.print-header-company-name');
   var companyNameInput = document.getElementById('companyNameInput');
-  var logoModeTextRadio = document.getElementById('logoModeTextRadio');
-  var logoModeImageRadio = document.getElementById('logoModeImageRadio');
-  var logoModeTextPanel = document.getElementById('logoModeTextPanel');
-  var logoModeImagePanel = document.getElementById('logoModeImagePanel');
 
   function updatePrintBrand(){
-    var mode = localStorage.getItem(MODE_KEY) || 'text';
-    if (mode === 'image'){
-      var logoData = localStorage.getItem(LOGO_KEY);
-      printHeaderLogos.forEach(function(el){
-        if (logoData){ el.src = logoData; el.style.display = 'block'; }
-        else { el.style.display = 'none'; }
-      });
-      printHeaderCompanyNames.forEach(function(el){ el.style.display = 'none'; });
-    } else {
-      var name = localStorage.getItem(NAME_KEY) || '';
-      printHeaderCompanyNames.forEach(function(el){
-        if (name){ el.textContent = name; el.style.display = 'block'; }
-        else { el.style.display = 'none'; }
-      });
-      printHeaderLogos.forEach(function(el){ el.style.display = 'none'; });
-    }
-  }
-
-  function applyMode(mode){
-    localStorage.setItem(MODE_KEY, mode);
-    logoModeTextPanel.style.display = (mode === 'image') ? 'none' : 'block';
-    logoModeImagePanel.style.display = (mode === 'image') ? 'block' : 'none';
-    updatePrintBrand();
+    var logoData = localStorage.getItem(LOGO_KEY);
+    printHeaderLogos.forEach(function(el){
+      if (logoData){ el.src = logoData; el.style.display = 'block'; }
+      else { el.style.display = 'none'; }
+    });
+    var name = localStorage.getItem(NAME_KEY) || '';
+    printHeaderCompanyNames.forEach(function(el){
+      if (name){ el.textContent = name; el.style.display = 'block'; }
+      else { el.style.display = 'none'; }
+    });
   }
 
   function setLogo(dataUrl){
@@ -1193,7 +1166,6 @@
     logoFileInput.value = '';
   });
   document.addEventListener('paste', function(e){
-    if ((localStorage.getItem(MODE_KEY) || 'text') !== 'image') return;
     var items = (e.clipboardData || window.clipboardData).items;
     if (!items) return;
     for (var i = 0; i < items.length; i++){
@@ -1204,9 +1176,6 @@
       }
     }
   });
-
-  logoModeTextRadio.addEventListener('change', function(){ if (this.checked) applyMode('text'); });
-  logoModeImageRadio.addEventListener('change', function(){ if (this.checked) applyMode('image'); });
 
   companyNameInput.addEventListener('input', function(){
     localStorage.setItem(NAME_KEY, companyNameInput.value);
@@ -1225,11 +1194,6 @@
   function loadBrandSettings(){
     companyNameInput.value = localStorage.getItem(NAME_KEY) || '';
     loadLogo();
-    var mode = localStorage.getItem(MODE_KEY) || 'text';
-    logoModeTextRadio.checked = (mode !== 'image');
-    logoModeImageRadio.checked = (mode === 'image');
-    logoModeTextPanel.style.display = (mode === 'image') ? 'none' : 'block';
-    logoModeImagePanel.style.display = (mode === 'image') ? 'block' : 'none';
     updatePrintBrand();
   }
 
