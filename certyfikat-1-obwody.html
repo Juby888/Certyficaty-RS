@@ -215,6 +215,7 @@
       <table class="rs-table circuit-table">
         <thead>
           <tr>
+            <th class="col-c-num">Nr obwodu</th>
             <th class="col-c-desc">Obwód (opis)</th>
             <th class="col-c-csa">Przekrój [mm²]</th>
             <th class="col-c-mcb-type">Charakterystyka</th>
@@ -222,6 +223,7 @@
             <th class="col-c-rcd-type">Rodzaj RCD</th>
             <th class="col-c-rcd-in">RCD I∆n [mA]</th>
             <th class="col-c-continuity">Ciągłość PE [Ω]</th>
+            <th class="col-c-itest">Nap. probiercze [V]</th>
             <th class="col-c-insulation">Izolacja [MΩ]</th>
             <th class="col-c-zs">Zs [Ω]</th>
             <th class="col-c-rcd-time">Czas RCD [ms]</th>
@@ -280,12 +282,14 @@
   var MCB_RATING_OPTS = ['', '6', '10', '13', '16', '20', '25', '32', '40', '50', '63', '80', '100'];
   var RCD_TYPE_OPTS = ['', 'Brak', 'AC', 'A', 'F', 'B'];
   var RCD_IN_OPTS = ['', '10', '30', '100', '300', '500'];
+  var ITEST_OPTS = ['', '250', '500', '1000'];
   var RESULT_OPTS = ['', '✓', 'X'];
 
   function addCircuitRow(rowData){
     rowData = rowData || {};
     var tr = document.createElement('tr');
     tr.innerHTML =
+      '<td><input type="text" class="c-num" placeholder="np. 1"></td>' +
       '<td><input type="text" class="c-desc" placeholder="np. Gniazda kuchnia"></td>' +
       '<td><select class="c-csa">' + opts(CSA_OPTS, rowData.csa) + '</select></td>' +
       '<td><select class="c-mcbtype">' + opts(MCB_TYPE_OPTS, rowData.mcbtype) + '</select></td>' +
@@ -293,11 +297,13 @@
       '<td><select class="c-rcdtype">' + opts(RCD_TYPE_OPTS, rowData.rcdtype) + '</select></td>' +
       '<td><select class="c-rcdin">' + opts(RCD_IN_OPTS, rowData.rcdin) + '</select></td>' +
       '<td><input type="text" class="c-continuity" placeholder="Ω"></td>' +
+      '<td><select class="c-itest">' + opts(ITEST_OPTS, rowData.itest) + '</select></td>' +
       '<td><input type="text" class="c-insulation" placeholder="MΩ"></td>' +
       '<td><input type="text" class="c-zs" placeholder="Ω"></td>' +
       '<td><input type="text" class="c-rcdtime" placeholder="ms"></td>' +
       '<td><select class="c-result">' + opts(RESULT_OPTS, rowData.result) + '</select></td>' +
       '<td><button type="button" class="rs-table-remove" title="Usuń wiersz">✕</button></td>';
+    tr.querySelector('.c-num').value = rowData.num || '';
     tr.querySelector('.c-desc').value = rowData.desc || '';
     tr.querySelector('.c-continuity').value = rowData.continuity || '';
     tr.querySelector('.c-insulation').value = rowData.insulation || '';
@@ -316,6 +322,7 @@
     var rows = [];
     circuitBody.querySelectorAll('tr').forEach(function(tr){
       rows.push({
+        num: tr.querySelector('.c-num').value,
         desc: tr.querySelector('.c-desc').value,
         csa: tr.querySelector('.c-csa').value,
         mcbtype: tr.querySelector('.c-mcbtype').value,
@@ -323,6 +330,7 @@
         rcdtype: tr.querySelector('.c-rcdtype').value,
         rcdin: tr.querySelector('.c-rcdin').value,
         continuity: tr.querySelector('.c-continuity').value,
+        itest: tr.querySelector('.c-itest').value,
         insulation: tr.querySelector('.c-insulation').value,
         zs: tr.querySelector('.c-zs').value,
         rcdtime: tr.querySelector('.c-rcdtime').value,
