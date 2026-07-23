@@ -94,7 +94,7 @@
 
   function lockExportButtons(protocolId){
     injectDemoStyle();
-    ['printBtn', 'lockedPdfBtn'].forEach(function(id){
+    ['printBtn', 'lockedPdfBtn', 'previewPrintBtn'].forEach(function(id){
       var btn = document.getElementById(id);
       if (!btn) return;
       btn.classList.add('demo-locked');
