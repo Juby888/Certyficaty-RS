@@ -2231,6 +2231,9 @@
 
       var safeName = (pn || 'protokol').replace(/[\\/:*?"<>|]+/g, '-');
       doc.save('Protokol-' + safeName + '-zablokowany.pdf');
+      if (window.RS_AUTH && window.RS_AUTH.consumeProtocolEntitlement){
+        window.RS_AUTH.consumeProtocolEntitlement('certyfikat-4');
+      }
 
       btn.textContent = originalLabel;
       btn.classList.remove('is-disabled');

@@ -186,5 +186,22 @@
     boot();
   }
 
-  window.RS_AUTH = { getClient: getClient };
+  function consumeProtocolEntitlement(protocolId){
+    var c = getClient();
+    if (!c) return;
+    c.auth.getSession().then(function(res){
+      var session = res.data && res.data.session;
+      if (!session) return;
+      fetch('/api/consume-entitlement', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + session.access_token
+        },
+        body: JSON.stringify({ protocol_id: protocolId })
+      }).catch(function(){});
+    });
+  }
+
+  window.RS_AUTH = { getClient: getClient, consumeProtocolEntitlement: consumeProtocolEntitlement };
 })();
