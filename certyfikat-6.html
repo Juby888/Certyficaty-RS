@@ -613,7 +613,7 @@
   <span class="rs-preview-label">Podgląd wydruku — tak będzie wyglądał protokół</span>
   <div class="rs-preview-actions">
     <button type="button" class="rs-preview-btn light" id="previewCloseBtn">← Wróć do edycji</button>
-    <button type="button" class="rs-preview-btn solid" id="previewPrintBtn">Drukuj / Zapisz jako PDF</button>
+    <button type="button" class="rs-preview-btn solid" id="previewPrintBtn">Zapisz jako PDF</button>
   </div>
 </div>
 
@@ -642,11 +642,12 @@
     <div class="action-buttons">
       <button type="button" class="btn btn-outline btn-sm" id="clearBtn">Wyczyść formularz</button>
       <button type="button" class="btn btn-outline btn-sm" id="previewBtn">Podgląd</button>
-      <button type="button" class="btn btn-solid btn-sm" id="printBtn">Drukuj / Zapisz jako PDF</button>
+      <button type="button" class="btn btn-solid btn-sm" id="printBtn">Zapisz jako PDF</button>
       <button type="button" class="btn btn-outline btn-sm is-disabled" title="Dostępne po uruchomieniu kont i wysyłki e-mail">Wyślij mailem</button>
-      <button type="button" class="btn btn-outline btn-sm" id="lockedPdfBtn">Zablokowany PDF</button>
+      <button type="button" class="btn btn-outline btn-sm" id="lockedPdfBtn" style="display:none;">Zablokowany PDF</button>
     </div>
   </div>
+  <p style="max-width:1180px; margin:0 auto; padding:0 24px 10px; text-align:right; color:#7a5b00; font-size:12px;">⚠ Po kliknięciu "Zapisz jako PDF" ten certyfikat zostanie zablokowany do dalszej edycji. Użyj "Podgląd", żeby zweryfikować dane wcześniej.</p>
 </div>
 
 <div class="save-status">
@@ -698,7 +699,7 @@
       </div>
     </div>
 
-    <div class="cert-section-body cols-1 pdf-password-field">
+    <div class="cert-section-body cols-1 pdf-password-field" style="display:none;">
       <div class="field">
         <label>Hasło zabezpieczające do "Zablokowany PDF"</label>
         <input type="password" id="pdfOwnerPasswordInput" placeholder="Ustaw raz — będzie używane przy każdym eksporcie zablokowanego PDF-a" autocomplete="off">
@@ -1852,8 +1853,44 @@
     renderPrintSketch();
   });
 
+  var FINALIZED_KEY = 'rs-certyfikat-6-finalized';
+
+  function isFinalized(){
+    return localStorage.getItem(FINALIZED_KEY) === '1';
+  }
+
+  function applyFinalizedLock(){
+    var mainEl = document.querySelector('main');
+    if (mainEl){
+      mainEl.querySelectorAll('input, textarea, select').forEach(function(el){ el.disabled = true; });
+      mainEl.style.pointerEvents = 'none';
+    }
+    var clearBtn = document.getElementById('clearBtn');
+    if (clearBtn) clearBtn.disabled = true;
+    var wrap = document.querySelector('.action-bar-wrap');
+    if (wrap && !document.getElementById('rsFinalizedBanner')){
+      var banner = document.createElement('div');
+      banner.id = 'rsFinalizedBanner';
+      banner.style.cssText = 'max-width:1180px; margin:10px auto 0; padding:10px 16px; background:#fff8e1; border:1px solid #f0d896; color:#7a5b00; border-radius:10px; font-size:13px; text-align:center;';
+      banner.textContent = 'Ten certyfikat został sfinalizowany (wydrukowany/zapisany) i nie można go już edytować.';
+      wrap.parentNode.insertBefore(banner, wrap.nextSibling);
+    }
+  }
+
+  function finalizeCertificate(){
+    if (isFinalized()) return;
+    localStorage.setItem(FINALIZED_KEY, '1');
+    applyFinalizedLock();
+    if (window.RS_AUTH && window.RS_AUTH.consumeProtocolEntitlement){
+      window.RS_AUTH.consumeProtocolEntitlement('certyfikat-6');
+    }
+  }
+
+  if (isFinalized()) applyFinalizedLock();
+
   document.getElementById('printBtn').addEventListener('click', function(){
     window.print();
+    finalizeCertificate();
   });
 
   var previewToolbar = document.getElementById('rsPreviewToolbar');
@@ -1884,6 +1921,7 @@
     previewToolbar.style.display = 'none';
     window.print();
     previewToolbar.style.display = 'flex';
+    finalizeCertificate();
   });
 
   var PDF_PASSWORD_KEY = 'rs-pdf-owner-password';
