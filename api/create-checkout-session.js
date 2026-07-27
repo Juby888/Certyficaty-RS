@@ -7,11 +7,11 @@ const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABAS
 const PRICES = {
   subscription: 'price_1TwI2qQfn56rPw2gIbo6GqDT',
   'certyfikat-1': 'price_1TwI2pQfn56rPw2gGUGfgfdA',
-  'certyfikat-2': 'price_1TwI2pQfn56rPw2gSWF1E1nx',
+  'certyfikat-2': 'price_1TwI2pQfn56rPw2gSWF1Elnx',
   'certyfikat-3': 'price_1TwI2oQfn56rPw2g8HxYmMoW',
   'certyfikat-4': 'price_1TwI2pQfn56rPw2gNfoaUeNu',
   'certyfikat-5': 'price_1TwI2pQfn56rPw2gvu2Ik0pv',
-  'certyfikat-6': 'price_1TwI21Qfn56rPw2g8m8yTw3y'
+  'certyfikat-6': 'price_1TwI2lQfn56rPw2g8m8yTw3y'
 };
 
 module.exports = async (req, res) => {
