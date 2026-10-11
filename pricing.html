@@ -105,8 +105,8 @@
 
   <div class="plan-card">
     <div>
-      <h2>Dostęp do wszystkich protokołów</h2>
-      <p>Subskrypcja obejmująca pełny dostęp (druk, eksport, Zablokowany PDF) do wszystkich protokołów w serwisie.</p>
+      <h2>Dostęp do wszystkich protokołów elektrycznych</h2>
+      <p>Subskrypcja obejmująca pełny dostęp (druk, eksport, Zablokowany PDF) do wszystkich protokołów elektrycznych w serwisie.</p>
     </div>
     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
       <div class="plan-price">500 zł / rok</div>
@@ -114,7 +114,7 @@
     </div>
   </div>
 
-  <div class="protocols-head">Albo kup dostęp do pojedynczego protokołu (dostęp bezterminowy)</div>
+  <div class="protocols-head">Albo kup dostęp do pojedynczego protokołu elektrycznego (dostęp bezterminowy)</div>
   <div class="protocol-grid" id="protocolGrid">
     <div class="protocol-card" data-protocol="certyfikat-1">
       <h3>Protokół odbioru nowej instalacji elektrycznej</h3>
@@ -143,6 +143,46 @@
     </div>
     <div class="protocol-card" data-protocol="certyfikat-6">
       <h3>Odbiór stacji ładowania pojazdów elektrycznych</h3>
+      <div class="price">25 zł</div>
+      <button type="button" class="btn btn-outline btn-sm">Kup dostęp</button>
+    </div>
+  </div>
+
+  <div class="plan-card" style="margin-top:40px;">
+    <div>
+      <h2>Dostęp do wszystkich protokołów gazowych</h2>
+      <p>Subskrypcja obejmująca pełny dostęp (druk, eksport, Zablokowany PDF) do wszystkich protokołów gazowych w serwisie. Niezależna od subskrypcji elektrycznej.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+      <div class="plan-price">500 zł / rok</div>
+      <button type="button" class="btn btn-solid btn-lg" id="subscribeGazBtn">Wykup subskrypcję</button>
+    </div>
+  </div>
+
+  <div class="protocols-head">Albo kup dostęp do pojedynczego protokołu gazowego (dostęp bezterminowy)</div>
+  <div class="protocol-grid" id="protocolGridGaz">
+    <div class="protocol-card" data-protocol="gaz-1">
+      <h3>Główna próba szczelności instalacji gazowej</h3>
+      <div class="price">25 zł</div>
+      <button type="button" class="btn btn-outline btn-sm">Kup dostęp</button>
+    </div>
+    <div class="protocol-card" data-protocol="gaz-2">
+      <h3>Odbiór nowej instalacji gazowej</h3>
+      <div class="price">25 zł</div>
+      <button type="button" class="btn btn-outline btn-sm">Kup dostęp</button>
+    </div>
+    <div class="protocol-card" data-protocol="gaz-3">
+      <h3>Okresowa kontrola instalacji gazowej</h3>
+      <div class="price">25 zł</div>
+      <button type="button" class="btn btn-outline btn-sm">Kup dostęp</button>
+    </div>
+    <div class="protocol-card" data-protocol="gaz-4">
+      <h3>Odbiór / wymiana urządzenia gazowego</h3>
+      <div class="price">25 zł</div>
+      <button type="button" class="btn btn-outline btn-sm">Kup dostęp</button>
+    </div>
+    <div class="protocol-card" data-protocol="gaz-5">
+      <h3>Odbiór przyłącza gazowego</h3>
       <div class="price">25 zł</div>
       <button type="button" class="btn btn-outline btn-sm">Kup dostęp</button>
     </div>
@@ -177,7 +217,7 @@
     note.style.display = 'block';
   }
 
-  function startCheckout(kind, protocolId, btn){
+  function startCheckout(kind, protocolId, btn, category){
     var c = window.RS_AUTH && window.RS_AUTH.getClient();
     if (!c) return;
     var originalText = btn.textContent;
@@ -196,7 +236,7 @@
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + session.access_token
         },
-        body: JSON.stringify({ kind: kind, protocol_id: protocolId })
+        body: JSON.stringify({ kind: kind, protocol_id: protocolId, category: category })
       }).then(function(r){ return r.json(); }).then(function(data){
         if (data.url){
           window.location.href = data.url;
@@ -215,7 +255,12 @@
 
   var subBtn = document.getElementById('subscribeBtn');
   if (subBtn){
-    subBtn.addEventListener('click', function(){ startCheckout('subscription', null, subBtn); });
+    subBtn.addEventListener('click', function(){ startCheckout('subscription', null, subBtn, 'elektryka'); });
+  }
+
+  var subGazBtn = document.getElementById('subscribeGazBtn');
+  if (subGazBtn){
+    subGazBtn.addEventListener('click', function(){ startCheckout('subscription', null, subGazBtn, 'gaz'); });
   }
 
   document.querySelectorAll('.protocol-card').forEach(function(card){

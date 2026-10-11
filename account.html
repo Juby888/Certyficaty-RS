@@ -136,7 +136,7 @@
   function loadStatus(){
     currentClient
       .from('entitlements')
-      .select('kind, protocol_id, status, current_period_end')
+      .select('kind, protocol_id, status, current_period_end, category')
       .eq('user_id', currentSession.user.id)
       .eq('status', 'active')
       .then(function(res){
@@ -146,13 +146,24 @@
           return;
         }
         var rows = res.data || [];
-        var sub = rows.find(function(r){ return r.kind === 'subscription'; });
-        if (sub){
-          statusEl.textContent = 'Aktywna subskrypcja (wszystkie protokoły)';
-        } else {
-          var protocols = rows.filter(function(r){ return r.kind === 'protocol'; }).map(function(r){ return r.protocol_id; });
-          statusEl.textContent = protocols.length ? ('Wykupione: ' + protocols.join(', ')) : 'Brak wykupionego dostępu (tryb demo)';
+        if (!rows.length){
+          statusEl.textContent = 'Brak wykupionego dostępu (tryb demo)';
+          return;
         }
+        var parts = [];
+        ['elektryka', 'gaz'].forEach(function(cat){
+          var catRows = rows.filter(function(r){ return (r.category || 'elektryka') === cat; });
+          if (!catRows.length) return;
+          var label = cat === 'gaz' ? 'Gaz' : 'Elektryka';
+          var sub = catRows.find(function(r){ return r.kind === 'subscription'; });
+          if (sub){
+            parts.push(label + ': aktywna subskrypcja');
+          } else {
+            var protocols = catRows.filter(function(r){ return r.kind === 'protocol'; }).map(function(r){ return r.protocol_id; });
+            if (protocols.length) parts.push(label + ': ' + protocols.join(', '));
+          }
+        });
+        statusEl.textContent = parts.length ? parts.join(' | ') : 'Brak wykupionego dostępu (tryb demo)';
       });
   }
 

@@ -40,4 +40,24 @@
     <loc>https://protokolypomiarowe.pl/certyfikat-6.html</loc>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://protokolypomiarowe.pl/gaz-1.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://protokolypomiarowe.pl/gaz-2.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://protokolypomiarowe.pl/gaz-3.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://protokolypomiarowe.pl/gaz-4.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://protokolypomiarowe.pl/gaz-5.html</loc>
+    <priority>0.7</priority>
+  </url>
 </urlset>
