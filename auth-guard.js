@@ -27,6 +27,7 @@
     if (session && session.user){
       wrap.innerHTML =
         '<span style="font-size:13px; color:var(--text-muted); margin-right:2px;">' + escapeHtml(session.user.email) + '</span>' +
+        '<a href="account.html" class="btn btn-outline">Moje konto</a>' +
         '<a href="#" class="btn btn-outline" id="rsLogoutBtn">Wyloguj</a>';
       var logoutBtn = document.getElementById('rsLogoutBtn');
       if (logoutBtn){
@@ -151,6 +152,18 @@
     });
   }
 
+  function initAccountPage(c){
+    c.auth.getSession().then(function(res){
+      var session = res.data && res.data.session;
+      if (!session){
+        redirectToLogin();
+        return;
+      }
+      renderAuthButtons(session);
+      document.dispatchEvent(new CustomEvent('rs-account-ready', { detail: { session: session, client: c } }));
+    });
+  }
+
   function initAuthPage(c){
     c.auth.getSession().then(function(res){
       var session = res.data && res.data.session;
@@ -175,6 +188,8 @@
       initPublicPage(c);
     } else if (page === 'auth'){
       initAuthPage(c);
+    } else if (page === 'account'){
+      initAccountPage(c);
     } else {
       initPublicPage(c);
     }

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moje konto | Protokoły Pomiarowe Grid</title>
+<meta name="description" content="Zarządzaj swoim kontem w Protokoły Pomiarowe Grid.">
+<link rel="stylesheet" href="styles.css">
+<style>
+  main{
+    position:relative;
+    z-index:1;
+    max-width:720px;
+    margin:0 auto;
+    padding:60px 24px 100px;
+  }
+  main h1{font-size:30px; font-weight:800; margin-bottom:24px;}
+
+  .account-box{
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:26px 28px;
+    margin-bottom:24px;
+  }
+  .account-box h2{font-size:16px; font-weight:800; margin-bottom:14px;}
+  .account-row{display:flex; justify-content:space-between; gap:12px; padding:8px 0; font-size:14px; border-bottom:1px solid var(--line);}
+  .account-row:last-child{border-bottom:none;}
+  .account-row .label{color:var(--text-muted);}
+  .account-row .value{font-weight:600; text-align:right;}
+
+  .danger-box{
+    background:#fdecec;
+    border:1px solid #f3b9b9;
+    border-radius:14px;
+    padding:26px 28px;
+  }
+  .danger-box h2{font-size:16px; font-weight:800; margin-bottom:8px; color:#8a1f1f;}
+  .danger-box p{font-size:13.5px; color:#8a1f1f; margin-bottom:16px; line-height:1.6;}
+  .danger-box input[type=text]{
+    width:100%;
+    max-width:260px;
+    padding:9px 11px;
+    border:1px solid #f3b9b9;
+    border-radius:8px;
+    font-size:14px;
+    font-family:inherit;
+    margin-bottom:14px;
+  }
+  .btn-danger{
+    background:#c8102e;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:10px 20px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .btn-danger[disabled]{opacity:0.5; cursor:not-allowed;}
+
+  .loading-note{color:var(--text-muted); font-size:14px;}
+</style>
+</head>
+<body data-page="account">
+
+<div class="circuit-bg"></div>
+
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo">
+      <div class="bolt">
+        <svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+      </div>
+      <div>Protokoły Pomiarowe <span class="rs">Grid</span></div>
+    </a>
+    <nav class="links">
+      <a href="index.html#tiles">Protokoły</a>
+      <a href="about.html">O nas</a>
+      <a href="contact.html">Kontakt</a>
+    </nav>
+    <div class="auth-buttons"></div>
+  </div>
+</header>
+
+<main>
+  <h1>Moje konto</h1>
+
+  <div id="accountLoading" class="loading-note">Wczytywanie…</div>
+
+  <div id="accountContent" style="display:none;">
+    <div class="account-box">
+      <h2>Dane konta</h2>
+      <div class="account-row">
+        <span class="label">E-mail</span>
+        <span class="value" id="accountEmail">—</span>
+      </div>
+      <div class="account-row">
+        <span class="label">Status dostępu</span>
+        <span class="value" id="accountStatus">Sprawdzanie…</span>
+      </div>
+    </div>
+
+    <div class="danger-box">
+      <h2>Usuń konto</h2>
+      <p>To działanie jest <strong>nieodwracalne</strong>. Usunięte zostaną: Twoje konto, wszystkie zapisane uprawnienia dostępu do protokołów oraz aktywna subskrypcja (zostanie automatycznie anulowana w Stripe — nie będziesz już obciążany płatnościami). Dane wypełnione w formularzach, zapisane lokalnie w tej przeglądarce, nie zostaną usunięte automatycznie z innych urządzeń.</p>
+      <label style="display:block; font-size:13px; font-weight:700; color:#8a1f1f; margin-bottom:6px;">Żeby potwierdzić, wpisz <strong>USUŃ</strong> poniżej:</label>
+      <input type="text" id="deleteConfirmInput" placeholder="USUŃ" autocomplete="off">
+      <br>
+      <button type="button" class="btn-danger" id="deleteAccountBtn" disabled>Usuń konto na stałe</button>
+    </div>
+  </div>
+</main>
+
+<footer>
+  &copy; 2026 Protokoły Pomiarowe Grid. Wszystkie prawa zastrzeżone.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth-guard.js"></script>
+<script>
+(function(){
+  var currentSession = null;
+  var currentClient = null;
+
+  document.addEventListener('rs-account-ready', function(e){
+    currentSession = e.detail.session;
+    currentClient = e.detail.client;
+    document.getElementById('accountLoading').style.display = 'none';
+    document.getElementById('accountContent').style.display = 'block';
+    document.getElementById('accountEmail').textContent = currentSession.user.email;
+    loadStatus();
+  });
+
+  function loadStatus(){
+    currentClient
+      .from('entitlements')
+      .select('kind, protocol_id, status, current_period_end')
+      .eq('user_id', currentSession.user.id)
+      .eq('status', 'active')
+      .then(function(res){
+        var statusEl = document.getElementById('accountStatus');
+        if (res.error){
+          statusEl.textContent = 'Nie udało się sprawdzić.';
+          return;
+        }
+        var rows = res.data || [];
+        var sub = rows.find(function(r){ return r.kind === 'subscription'; });
+        if (sub){
+          statusEl.textContent = 'Aktywna subskrypcja (wszystkie protokoły)';
+        } else {
+          var protocols = rows.filter(function(r){ return r.kind === 'protocol'; }).map(function(r){ return r.protocol_id; });
+          statusEl.textContent = protocols.length ? ('Wykupione: ' + protocols.join(', ')) : 'Brak wykupionego dostępu (tryb demo)';
+        }
+      });
+  }
+
+  var confirmInput = document.getElementById('deleteConfirmInput');
+  var deleteBtn = document.getElementById('deleteAccountBtn');
+
+  confirmInput.addEventListener('input', function(){
+    deleteBtn.disabled = confirmInput.value.trim().toUpperCase() !== 'USUŃ';
+  });
+
+  deleteBtn.addEventListener('click', function(){
+    if (!confirm('Na pewno chcesz trwale usunąć konto? Tej operacji nie można cofnąć.')) return;
+
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = 'Usuwanie…';
+
+    fetch('/api/delete-account', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + currentSession.access_token
+      }
+    }).then(function(r){ return r.json().then(function(body){ return { status: r.status, body: body }; }); })
+      .then(function(res){
+        if (res.status === 200){
+          Object.keys(localStorage).forEach(function(key){
+            if (key.indexOf('rs-') === 0) localStorage.removeItem(key);
+          });
+          alert('Konto zostało usunięte.');
+          window.location.href = 'index.html';
+        } else {
+          alert((res.body && res.body.error) || 'Nie udało się usunąć konta.');
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = 'Usuń konto na stałe';
+        }
+      }).catch(function(){
+        alert('Błąd połączenia z serwerem. Spróbuj ponownie później.');
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = 'Usuń konto na stałe';
+      });
+  });
+})();
+</script>
+</body>
+</html>
