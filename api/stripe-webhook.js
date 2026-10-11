@@ -16,7 +16,7 @@ function readRawBody(req) {
   });
 }
 
-async function upsertProtocolEntitlement(userId, protocolId, stripeCustomerId) {
+async function upsertProtocolEntitlement(userId, protocolId, stripeCustomerId, category) {
   const { data: existing, error: selectError } = await supabaseAdmin
     .from('entitlements')
     .select('id')
@@ -37,6 +37,7 @@ async function upsertProtocolEntitlement(userId, protocolId, stripeCustomerId) {
     kind: 'protocol',
     protocol_id: protocolId,
     status: 'active',
+    category: category,
     stripe_customer_id: stripeCustomerId,
     current_period_end: null
   });
@@ -47,7 +48,7 @@ async function upsertProtocolEntitlement(userId, protocolId, stripeCustomerId) {
   }
 }
 
-async function upsertSubscriptionEntitlement(userId, stripeSubscriptionId, stripeCustomerId) {
+async function upsertSubscriptionEntitlement(userId, stripeSubscriptionId, stripeCustomerId, category) {
   const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
   const periodEnd = new Date(subscription.current_period_end * 1000).toISOString();
 
@@ -76,6 +77,7 @@ async function upsertSubscriptionEntitlement(userId, stripeSubscriptionId, strip
       kind: 'subscription',
       protocol_id: null,
       status: 'active',
+      category: category,
       stripe_customer_id: stripeCustomerId,
       stripe_subscription_id: stripeSubscriptionId,
       current_period_end: periodEnd
@@ -112,11 +114,12 @@ module.exports = async (req, res) => {
         const userId = metadata.user_id;
         const kind = metadata.kind;
         const protocolId = metadata.protocol_id;
+        const category = metadata.category || 'elektryka';
 
         if (userId && kind === 'protocol' && protocolId) {
-          await upsertProtocolEntitlement(userId, protocolId, session.customer);
+          await upsertProtocolEntitlement(userId, protocolId, session.customer, category);
         } else if (userId && kind === 'subscription' && session.subscription) {
-          await upsertSubscriptionEntitlement(userId, session.subscription, session.customer);
+          await upsertSubscriptionEntitlement(userId, session.subscription, session.customer, category);
         } else {
           console.error('checkout.session.completed: brak wymaganych metadanych, pomijam.', metadata);
         }

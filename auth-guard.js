@@ -50,10 +50,15 @@
     window.location.href = 'login.html?redirect=' + encodeURIComponent(here);
   }
 
+  function categoryForProtocol(protocolId){
+    return (protocolId && protocolId.indexOf('gaz-') === 0) ? 'gaz' : 'elektryka';
+  }
+
   function checkEntitlement(c, userId, protocolId){
+    var category = categoryForProtocol(protocolId);
     return c
       .from('entitlements')
-      .select('kind, protocol_id, status, current_period_end')
+      .select('kind, protocol_id, status, current_period_end, category')
       .eq('user_id', userId)
       .eq('status', 'active')
       .then(function(res){
@@ -64,6 +69,7 @@
         var rows = res.data || [];
         return rows.some(function(r){
           if (r.kind === 'subscription'){
+            if (r.category !== category) return false;
             if (!r.current_period_end) return true;
             return new Date(r.current_period_end) > new Date();
           }

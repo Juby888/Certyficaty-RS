@@ -72,3 +72,8 @@ grant select, insert on profiles to authenticated;
 -- (bypassrls omija tylko polityki, nie podstawowe uprawnienia SQL).
 grant select, insert, update on entitlements to service_role;
 grant select, insert, update on profiles to service_role;
+
+-- Kategoria protokołu (elektryka / gaz), żeby subskrypcja jednej kategorii
+-- nie odblokowywała protokołów z drugiej. Istniejące wiersze (sprzed tej
+-- kolumny) są elektryczne, stąd domyślna wartość.
+alter table entitlements add column if not exists category text not null default 'elektryka' check (category in ('elektryka', 'gaz'));
