@@ -15,12 +15,12 @@ const PRICES = {
     'certyfikat-6': 'price_1TwI2lQfn56rPw2g8m8yTw3y'
   },
   gaz: {
-    subscription: 'TODO_GAZ_SUBSCRIPTION_PRICE_ID',
-    'gaz-1': 'TODO_GAZ_1_PRICE_ID',
-    'gaz-2': 'TODO_GAZ_2_PRICE_ID',
-    'gaz-3': 'TODO_GAZ_3_PRICE_ID',
-    'gaz-4': 'TODO_GAZ_4_PRICE_ID',
-    'gaz-5': 'TODO_GAZ_5_PRICE_ID'
+    subscription: 'price_1Uc3fmQfn56rPw2gwOgqp8MZ',
+    'gaz-1': 'price_1Uc3iEQfn56rPw2g1S931U6H',
+    'gaz-2': 'price_1Uc3ivQfn56rPw2gNYdbhGKD',
+    'gaz-3': 'price_1Uc3jfQfn56rPw2gKG9sN8Tk',
+    'gaz-4': 'price_1Uc3kPQfn56rPw2grr0xkGO5',
+    'gaz-5': 'price_1Uc3kqQfn56rPw2gISTOWtn3'
   }
 };
 
