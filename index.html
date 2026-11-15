@@ -140,6 +140,57 @@
   }
   .tile:hover .tile-footer{opacity:1; transform:translateX(0);}
 
+  section.tiles#tiles{padding-bottom:40px;}
+  section.cat-section{padding-top:0; scroll-margin-top:80px;}
+  .cat-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:26px;
+    max-width:900px;
+    margin:0 auto;
+  }
+  @media(max-width:700px){ .cat-grid{grid-template-columns:1fr;} }
+  .cat-tile{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    text-decoration:none;
+    color:inherit;
+    background:var(--bg);
+    border:2px solid var(--line);
+    border-radius:20px;
+    padding:40px 28px 34px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.04);
+    transition:transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+  }
+  .cat-tile:hover, .cat-tile.active{
+    transform:translateY(-6px);
+    border-color:var(--red);
+    box-shadow:0 16px 32px rgba(200,16,46,0.14), 0 4px 10px rgba(0,0,0,0.06);
+  }
+  .cat-icon{
+    width:72px; height:72px;
+    border-radius:18px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(145deg, var(--red-light), var(--red-700));
+    box-shadow:0 6px 18px rgba(200,16,46,0.35);
+    margin-bottom:22px;
+  }
+  .cat-icon svg{width:38px; height:38px; color:#fff;}
+  .cat-tile h3{font-size:22px; font-weight:800; margin-bottom:8px;}
+  .cat-tile p{font-size:14.5px; color:var(--text-muted); max-width:320px;}
+  .cat-count{margin-top:20px; font-size:14px; font-weight:700; color:var(--red);}
+  .cat-back{
+    display:inline-block;
+    margin-bottom:14px;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--text-muted);
+    text-decoration:none;
+  }
+  .cat-back:hover{color:var(--red);}
+
   section.compliance{
     position:relative;
     z-index:1;
@@ -235,7 +286,33 @@
 
 <section class="tiles" id="tiles">
   <div class="tiles-head">
-    <h2>Wybierz protokół</h2>
+    <h2>Wybierz rodzaj protokołów</h2>
+    <p>Kliknij kafelek, aby zobaczyć dostępne protokoły</p>
+  </div>
+  <div class="cat-grid">
+    <a href="#elektryka" class="cat-tile" data-cat="elektryka">
+      <div class="cat-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+      </div>
+      <h3>Protokoły elektryczne</h3>
+      <p>Odbiory i kontrole instalacji elektrycznych, instalacje odgromowe, fotowoltaika, stacje ładowania</p>
+      <div class="cat-count">6 protokołów →</div>
+    </a>
+    <a href="#gaz" class="cat-tile" data-cat="gaz">
+      <div class="cat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2c1 3-2 4-2 7a4 4 0 0 0 8 0c0-1.5-1-2.5-1-2.5s0 2-2 2c-2 0-1-2-1-4.5 0-1.5-1-2-2-2z"/><path d="M8 13a6 6 0 1 0 12 0c0-2-1-3-1-3"/></svg>
+      </div>
+      <h3>Protokoły gazowe</h3>
+      <p>Próby szczelności, odbiory i kontrole okresowe instalacji gazowych, urządzeń i przyłączy</p>
+      <div class="cat-count">5 protokołów →</div>
+    </a>
+  </div>
+</section>
+
+<section class="tiles cat-section" id="elektryka" hidden>
+  <div class="tiles-head">
+    <a href="#tiles" class="cat-back">← Zmień rodzaj protokołów</a>
+    <h2>Protokoły elektryczne</h2>
     <p>Kliknij kafelek, aby otworzyć i uzupełnić dokument</p>
   </div>
   <div class="grid">
@@ -303,10 +380,11 @@
   </div>
 </section>
 
-<section class="tiles" id="tiles-gaz">
+<section class="tiles cat-section" id="gaz" hidden>
   <div class="tiles-head">
+    <a href="#tiles" class="cat-back">← Zmień rodzaj protokołów</a>
     <h2>Protokoły gazowe</h2>
-    <p>Protokoły dla instalatorów gazowych — próby szczelności, odbiory i kontrole okresowe</p>
+    <p>Kliknij kafelek, aby otworzyć i uzupełnić dokument</p>
   </div>
   <div class="grid">
 
@@ -403,5 +481,22 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script src="auth-guard.js"></script>
+<script>
+(function(){
+  var sections = { elektryka: document.getElementById('elektryka'), gaz: document.getElementById('gaz') };
+  var catTiles = document.querySelectorAll('.cat-tile');
+
+  function showFromHash(){
+    var cat = window.location.hash.replace('#', '');
+    var target = sections[cat] || null;
+    Object.keys(sections).forEach(function(key){ sections[key].hidden = (sections[key] !== target); });
+    catTiles.forEach(function(tile){ tile.classList.toggle('active', tile.dataset.cat === cat); });
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  window.addEventListener('hashchange', showFromHash);
+  showFromHash();
+})();
+</script>
 </body>
 </html>
