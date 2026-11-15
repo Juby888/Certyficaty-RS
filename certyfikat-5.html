@@ -735,6 +735,10 @@
         <button type="button" class="btn btn-outline btn-sm" id="sketchDeleteBtn">Usuń zaznaczone</button>
         <button type="button" class="btn btn-outline btn-sm" id="sketchUndoBtn">Cofnij</button>
         <button type="button" class="btn btn-outline btn-sm" id="sketchClearBtn">Wyczyść</button>
+        <button type="button" class="btn btn-outline btn-sm" id="sketchBgBtn" title="Wgraj zdjęcie lub PDF z rysunkiem jako tło szkicu">Wgraj rysunek (zdjęcie / PDF)</button>
+        <button type="button" class="btn btn-outline btn-sm" id="sketchBgRemoveBtn">Usuń wgrany rysunek</button>
+        <input type="file" id="sketchBgInput" accept="image/*,application/pdf" style="display:none;">
+        <span class="hint">Wgrany rysunek jest tłem — nadal możesz na nim rysować strzałki i opisy. Z pliku PDF wczytywana jest 1. strona.</span>
       </div>
       <div class="sketch-canvas-wrap">
         <canvas id="sketchCanvas" width="1000" height="560"></canvas>
@@ -1074,6 +1078,8 @@
   window.addEventListener('beforeprint', renderPrintPhotos);
 
   var SKETCH_KEY = 'rs-certyfikat-5-sketch';
+  var SKETCH_BG_KEY = 'rs-certyfikat-5-sketch-bg';
+  var sketchBgImg = null;
   var sketchCanvas = document.getElementById('sketchCanvas');
   var sketchCtx = sketchCanvas.getContext('2d');
   var sketchCanvasWrap = sketchCanvas.closest('.sketch-canvas-wrap');
@@ -1197,6 +1203,7 @@
     sketchCtx.clearRect(0, 0, sketchCanvas.width, sketchCanvas.height);
     sketchCtx.fillStyle = '#ffffff';
     sketchCtx.fillRect(0, 0, sketchCanvas.width, sketchCanvas.height);
+    drawSketchBg();
     sketchItems.forEach(function(it, idx){
       if (it.type === 'stroke'){
         if (it.points.length < 2) return;
@@ -1233,6 +1240,111 @@
   function saveSketch(){
     localStorage.setItem(SKETCH_KEY, JSON.stringify(sketchItems));
   }
+
+  function drawSketchBg(){
+    if (!sketchBgImg || !sketchBgImg.complete || !sketchBgImg.naturalWidth) return;
+    var s = Math.min(sketchCanvas.width / sketchBgImg.naturalWidth, sketchCanvas.height / sketchBgImg.naturalHeight);
+    var w = sketchBgImg.naturalWidth * s;
+    var h = sketchBgImg.naturalHeight * s;
+    sketchCtx.drawImage(sketchBgImg, (sketchCanvas.width - w) / 2, (sketchCanvas.height - h) / 2, w, h);
+  }
+
+  function setSketchBg(dataUrl, persist){
+    var img = new Image();
+    img.onload = function(){
+      sketchBgImg = img;
+      if (persist){
+        try { localStorage.setItem(SKETCH_BG_KEY, dataUrl); }
+        catch(e){ alert('Plik jest zbyt duży, żeby zapisać go w przeglądarce. Użyj mniejszego zdjęcia.'); }
+      }
+      redrawSketch();
+      renderPrintSketch();
+    };
+    img.src = dataUrl;
+  }
+
+  function loadSketchBg(){
+    var saved = localStorage.getItem(SKETCH_BG_KEY);
+    if (saved) setSketchBg(saved, false);
+  }
+
+  function canvasToBgJpeg(source, sw, sh){
+    var MAX = 1600;
+    var k = Math.min(1, MAX / Math.max(sw, sh));
+    var c = document.createElement('canvas');
+    c.width = Math.round(sw * k);
+    c.height = Math.round(sh * k);
+    var cx = c.getContext('2d');
+    cx.fillStyle = '#ffffff';
+    cx.fillRect(0, 0, c.width, c.height);
+    cx.drawImage(source, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.85);
+  }
+
+  function loadPdfJs(cb){
+    if (window.pdfjsLib){ cb(); return; }
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+    s.onload = function(){
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      cb();
+    };
+    s.onerror = function(){ alert('Nie udało się wczytać obsługi PDF. Sprawdź połączenie z internetem albo wgraj zdjęcie.'); };
+    document.head.appendChild(s);
+  }
+
+  function importPdfAsSketchBg(file){
+    loadPdfJs(function(){
+      file.arrayBuffer().then(function(buf){
+        return window.pdfjsLib.getDocument({data: buf}).promise;
+      }).then(function(pdf){
+        return pdf.getPage(1);
+      }).then(function(page){
+        var base = page.getViewport({scale: 1});
+        var viewport = page.getViewport({scale: 1600 / Math.max(base.width, base.height)});
+        var c = document.createElement('canvas');
+        c.width = Math.round(viewport.width);
+        c.height = Math.round(viewport.height);
+        var cx = c.getContext('2d');
+        cx.fillStyle = '#ffffff';
+        cx.fillRect(0, 0, c.width, c.height);
+        return page.render({canvasContext: cx, viewport: viewport}).promise.then(function(){
+          setSketchBg(c.toDataURL('image/jpeg', 0.85), true);
+        });
+      }).catch(function(){
+        alert('Nie udało się odczytać pliku PDF. Spróbuj wgrać zdjęcie rysunku.');
+      });
+    });
+  }
+
+  function importSketchBgFile(file){
+    if (!file) return;
+    if (file.type === 'application/pdf'){
+      importPdfAsSketchBg(file);
+    } else if (file.type.indexOf('image') !== -1){
+      readFileAsDataUrl(file, function(dataUrl){
+        var img = new Image();
+        img.onload = function(){ setSketchBg(canvasToBgJpeg(img, img.naturalWidth, img.naturalHeight), true); };
+        img.src = dataUrl;
+      });
+    } else {
+      alert('Wybierz zdjęcie (JPG, PNG) albo plik PDF.');
+    }
+  }
+
+  var sketchBgInput = document.getElementById('sketchBgInput');
+  document.getElementById('sketchBgBtn').addEventListener('click', function(){ sketchBgInput.click(); });
+  sketchBgInput.addEventListener('change', function(){
+    if (sketchBgInput.files && sketchBgInput.files[0]) importSketchBgFile(sketchBgInput.files[0]);
+    sketchBgInput.value = '';
+  });
+  document.getElementById('sketchBgRemoveBtn').addEventListener('click', function(){
+    if (!sketchBgImg) return;
+    sketchBgImg = null;
+    localStorage.removeItem(SKETCH_BG_KEY);
+    redrawSketch();
+    renderPrintSketch();
+  });
 
   function loadSketch(){
     var raw = localStorage.getItem(SKETCH_KEY);
@@ -1460,7 +1572,7 @@
   function renderPrintSketch(){
     var wrap = document.getElementById('printOnlySketch');
     var img = document.getElementById('printSketchImg');
-    if (!sketchItems.length){
+    if (!sketchItems.length && !sketchBgImg){
       wrap.style.display = 'none';
       return;
     }
@@ -1474,6 +1586,7 @@
   }
 
   loadSketch();
+  loadSketchBg();
   renderPrintSketch();
   window.addEventListener('beforeprint', renderPrintSketch);
 
@@ -1486,6 +1599,8 @@
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(PHOTOS_KEY);
     localStorage.removeItem(SKETCH_KEY);
+    localStorage.removeItem(SKETCH_BG_KEY);
+    sketchBgImg = null;
     form.reset();
     photos = [];
     renderPhotoGrid();
